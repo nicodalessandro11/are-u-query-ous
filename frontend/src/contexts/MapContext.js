@@ -1,0 +1,1 @@
+# Placeholder content for frontend/src/contexts/MapContext.js

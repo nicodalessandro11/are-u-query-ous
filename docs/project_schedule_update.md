@@ -1,0 +1,1 @@
+# Placeholder content for docs/project_schedule_update.md

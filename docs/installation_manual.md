@@ -1,0 +1,1 @@
+# Placeholder content for docs/installation_manual.md

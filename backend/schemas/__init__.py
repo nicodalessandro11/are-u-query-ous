@@ -1,0 +1,1 @@
+# Placeholder content for backend/schemas/__init__.py
