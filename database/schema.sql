@@ -102,3 +102,21 @@ CREATE INDEX idx_indicators_geo ON indicators (geo_level_id, geo_id);
 CREATE INDEX idx_point_features_geo ON point_features (geo_level_id, geo_id);
 
 CREATE INDEX idx_point_features_type ON point_features (feature_type);
+
+-- 🔓 TEMPORARY PERMISSIONS FOR INGEST SCRIPT (commented out by default)
+-- These lines allow read access for the Supabase service role to run the ETL script.
+-- Uncomment if you run this project in a Supabase environment.
+
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO service_role;
+
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO anon;
+
+GRANT INSERT ON TABLE public.districts TO service_role;
+GRANT INSERT ON TABLE public.neighbourhoods TO service_role;
+
+GRANT USAGE, SELECT ON SEQUENCE districts_id_seq TO service_role;
+GRANT USAGE, SELECT ON SEQUENCE neighbourhoods_id_seq TO service_role;
+

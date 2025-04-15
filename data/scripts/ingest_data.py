@@ -6,15 +6,15 @@ from upload import upload_to_supabase
 import subprocess
 import sys
 
-def run_all_etls():
+def run_etls_and_upload():
     print("🚀 Running ETL scripts...\n")
 
-    # Districts first
     bcn_d.run()
     mad_d.run()
     print("✅ District ETLs completed.\n")
 
-    # Neighbourhoods next
+    upload_to_supabase.run_district_upload()
+
     bcn_n.run()
     mad_n.run()
     print("✅ Neighbourhood ETLs completed.\n")
@@ -29,9 +29,9 @@ def run_tests():
     print("✅ All tests passed.\n")
 
 def run_all():
-    run_all_etls()
+    run_etls_and_upload()
     run_tests()
-    upload_to_supabase.run_all_uploads()
+    upload_to_supabase.run_neighbourhood_upload()
 
 if __name__ == "__main__":
     run_all()
