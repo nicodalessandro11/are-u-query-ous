@@ -1,0 +1,33 @@
+# Makefile for ETL pipeline — Are-U-Query-ous
+
+# Run all ETLs to generate processed JSON files
+etl:
+	PYTHONPATH=. python data/scripts/ingest_data.py
+
+# Clean processed data files
+clean:
+	python data/scripts/clean_processed.py
+
+# Run test suite: file validation and geometry preservation
+# test_processed: verifies all processed files exist and are valid
+# test_geometry: checks raw vs processed WKT geometries match exactly
+# test: runs all tests together
+test_processed:
+	pytest data/tests/test_processed_data.py
+
+test_geometry:
+	pytest data/tests/test_geometry_integrity.py
+
+test:
+	pytest data/tests/
+
+# Upload data to Supabase from processed JSON files
+upload:
+	PYTHONPATH=. python data/scripts/ingest_data.py upload
+
+# Seed initial database records (e.g., cities, geographical levels)
+seed:
+	psql $$DATABASE_URL -f database/seed.sql
+
+# Run entire pipeline: clean → etl → test → upload
+all: clean etl test upload
