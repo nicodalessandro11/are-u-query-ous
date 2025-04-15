@@ -1,10 +1,11 @@
-# tests/test_geometry_integrity.py
-
 import json
+import sys
 from pathlib import Path
 import pytest
 from shapely import wkt
+import geopandas as gpd  # Used to handle TopoJSON (Madrid)
 
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 BASE_DIR = Path(__file__).resolve().parents[2]
 RAW_DIR = BASE_DIR / "data/raw"
 PROCESSED_DIR = BASE_DIR / "data/processed"
@@ -18,7 +19,7 @@ def compare_geometries(raw_geom, processed_geom):
     except Exception:
         return False
 
-# Test: processed files exist and are not empty
+# Test: processed files exist and contain data
 @pytest.mark.parametrize("filename", [
     "insert_ready_districts_bcn.json",
     "insert_ready_neighbourhoods_bcn.json",
@@ -68,12 +69,11 @@ def test_madrid_district_geometry_preserved():
     raw_path = RAW_DIR / "madrid-districts.json"
     processed_path = PROCESSED_DIR / "insert_ready_districts_madrid.json"
 
-    with raw_path.open(encoding="utf-8") as f:
-        raw = json.load(f)
+    gdf = gpd.read_file(raw_path)
     with processed_path.open(encoding="utf-8") as f:
         processed = json.load(f)
 
-    raw_geom = raw["objects"]["districts"]["geometries"][0]["properties"]["wkt"]
+    raw_geom = gdf.geometry.iloc[0].wkt
     processed_geom = processed[0]["geom"]
 
     assert compare_geometries(raw_geom, processed_geom), "Geometry mismatch for Madrid districts"
@@ -83,12 +83,11 @@ def test_madrid_neighbourhood_geometry_preserved():
     raw_path = RAW_DIR / "madrid-neighbourhoods.json"
     processed_path = PROCESSED_DIR / "insert_ready_neighbourhoods_madrid.json"
 
-    with raw_path.open(encoding="utf-8") as f:
-        raw = json.load(f)
+    gdf = gpd.read_file(raw_path)
     with processed_path.open(encoding="utf-8") as f:
         processed = json.load(f)
 
-    raw_geom = raw["objects"]["neighbourhoods"]["geometries"][0]["properties"]["wkt"]
+    raw_geom = gdf.geometry.iloc[0].wkt
     processed_geom = processed[0]["geom"]
 
     assert compare_geometries(raw_geom, processed_geom), "Geometry mismatch for Madrid neighbourhoods"
