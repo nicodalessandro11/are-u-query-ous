@@ -32,26 +32,26 @@ CREATE TABLE
         geom GEOMETRY (POLYGON, 4326), -- District geometry in WGS84
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        district_code TEXT NOT NULL,
         UNIQUE (city_id, district_code), -- Ensures district_code is unique per city
         UNIQUE (city_id, name) -- Prevents duplicate district names per city
     );
 
 -- Table: neighbourhoods
--- Stores neighbourhoods within a district, each with a unique code per district
+-- Stores neighbourhoods within a district, each with a unique code per district and explicit city reference
 CREATE TABLE
     neighbourhoods (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         neighbourhood_code TEXT NOT NULL, -- e.g., "01", "03"
         district_id INTEGER REFERENCES districts (id) ON DELETE CASCADE,
+        city_id INTEGER REFERENCES cities (id) ON DELETE CASCADE, -- NEW: explicit reference to city
         geom GEOMETRY (POLYGON, 4326), -- Neighbourhood geometry in WGS84
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        neighbourhood_code TEXT NOT NULL,
         UNIQUE (district_id, neighbourhood_code), -- Ensures neighbourhood_code is unique per district
-        UNIQUE (district_id, name) -- Prevents duplicate names per district
+        UNIQUE (district_id, name)                -- Prevents duplicate names per district
     );
+
 
 -- Table: indicator_definitions
 -- Defines what each indicator measures (e.g., population, average income)
