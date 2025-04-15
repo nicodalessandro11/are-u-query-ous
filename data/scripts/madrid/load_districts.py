@@ -5,9 +5,11 @@ from shapely.wkt import dumps
 from pathlib import Path
 import json
 
+BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+
 def run():
-    input_path = Path("data/raw/madrid-districts.json")
-    output_path = Path("data/processed/insert_ready_districts_madrid.json")
+    input_path = BASE_DIR / "data/raw/madrid-districts.json"
+    output_path = BASE_DIR / "data/processed/insert_ready_districts_madrid.json"
     city_id = 2  # Madrid
 
     gdf = gpd.read_file(input_path)

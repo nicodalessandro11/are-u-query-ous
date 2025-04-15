@@ -4,9 +4,11 @@ import json
 from shapely import wkt
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+
 def run():
-    input_path = Path("data/raw/bcn-districts.json")
-    output_path = Path("data/processed/insert_ready_districts_bcn.json")
+    input_path = BASE_DIR / "data/raw/bcn-districts.json"
+    output_path = BASE_DIR / "data/processed/insert_ready_districts_bcn.json"
     city_id = 1  # Barcelona
 
     with input_path.open(encoding="utf-8") as f:

@@ -4,6 +4,8 @@ import json
 from shapely import wkt
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+
 # Mapeo de nombre de distrito a ID en Supabase
 district_map = {
     "Ciutat Vella": 1,
@@ -19,8 +21,8 @@ district_map = {
 }
 
 def run():
-    input_path = Path("data/raw/bcn-neighbourhoods.json")
-    output_path = Path("data/processed/insert_ready_neighbourhoods_bcn.json")
+    input_path = BASE_DIR / "data/raw/bcn-neighbourhoods.json"
+    output_path = BASE_DIR / "data/processed/insert_ready_neighbourhoods_bcn.json"
 
     with input_path.open(encoding="utf-8") as f:
         raw_data = json.load(f)
@@ -31,7 +33,7 @@ def run():
     for b in raw_data:
         try:
             name = b["nom_barri"].strip()
-            code = b["Codi_Barri"].strip().zfill(2)
+            code = b["codi_barri"].strip().zfill(2)
             district_name = b["nom_districte"].strip()
             wkt_geom = b["geometria_wgs84"].strip()
 

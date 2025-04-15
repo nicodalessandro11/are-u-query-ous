@@ -5,6 +5,8 @@ from shapely.wkt import dumps
 from pathlib import Path
 import json
 
+BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+
 # Manual mapping of district codes to Supabase district IDs
 district_map = {
     "01": 11, "02": 12, "03": 13, "04": 14, "05": 15,
@@ -15,8 +17,8 @@ district_map = {
 }
 
 def run():
-    input_path = Path("data/raw/madrid-neighbourhoods.json")
-    output_path = Path("data/processed/insert_ready_neighbourhoods_madrid.json")
+    input_path = BASE_DIR / "data/raw/madrid-neighbourhoods.json"
+    output_path = BASE_DIR / "data/processed/insert_ready_neighbourhoods_madrid.json"
 
     gdf = gpd.read_file(input_path)
     prepared_data = []
