@@ -2,6 +2,8 @@ from barcelona import load_districts as bcn_d
 from barcelona import load_neighbourhoods as bcn_n
 from madrid import load_districts as mad_d
 from madrid import load_neighbourhoods as mad_n
+from barcelona import load_point_features as bcn_p 
+
 from upload import upload_to_supabase
 import subprocess
 import sys
@@ -19,6 +21,11 @@ def run_etls_and_upload():
     mad_n.run()
     print("✅ Neighbourhood ETLs completed.\n")
 
+    upload_to_supabase.run_neighbourhood_upload()
+
+    bcn_p.run()
+    print("✅ Point features ETL completed.\n")
+
 def run_tests():
     print("🧪 Running integrity tests...\n")
     result = subprocess.run(["pytest", "data/tests"], capture_output=True, text=True)
@@ -31,7 +38,7 @@ def run_tests():
 def run_all():
     run_etls_and_upload()
     run_tests()
-    upload_to_supabase.run_neighbourhood_upload()
+    upload_to_supabase.run_point_feature_upload()
 
 if __name__ == "__main__":
     run_all()

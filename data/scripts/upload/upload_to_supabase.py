@@ -10,7 +10,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
 
-# === CONFIGURACIÓN ===
+# === CONFIGURATION ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
@@ -42,7 +42,7 @@ def upload(table_name, records):
         import traceback
         traceback.print_exc()
 
-# === UPLOAD BLOQUES SEPARADOS ===
+# === UPLOAD SEPARATED BLOCKS ===
 def run_district_upload():
     print("📤 Uploading districts to Supabase...")
     base_path = Path("data/processed")
@@ -73,11 +73,27 @@ def run_neighbourhood_upload():
         else:
             print(f"⚠️ File not found: {file_path}")
 
-# === FUNCIÓN GENERAL (por si querés correrlo todo igual)
+def run_point_feature_upload():
+    print("📤 Uploading point features to Supabase...")
+    base_path = Path("data/processed")
+    files = [
+        ("point_features", BASE_DIR / base_path / "insert_ready_point_features_bcn.json"),
+        ("point_features", BASE_DIR / base_path / "insert_ready_point_features_madrid.json"),
+    ]
+
+    for table, file_path in files:
+        if file_path.exists():
+            data = load_json_data(file_path)
+            upload(table, data)
+        else:
+            print(f"⚠️ File not found: {file_path}")
+
+# === GENERAL FUNCTION
 def run_all_uploads():
     print("📡 Uploading data to Supabase...")
     run_district_upload()
     run_neighbourhood_upload()
+    run_point_feature_upload()
     print("✅ Upload to Supabase complete.")
 
 if __name__ == "__main__":

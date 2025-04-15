@@ -1,112 +1,142 @@
--- Enable PostGIS extension for spatial geometry support
+-- Enable PostGIS extension (note: it installs in the public schema by default)
 CREATE EXTENSION IF NOT EXISTS postgis;
 
--- Table: cities
--- Stores supported cities (e.g., Madrid, Barcelona)
-CREATE TABLE
-    cities (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+-- === Table: cities ===
+CREATE TABLE cities (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Table: geographical_levels
--- Defines the level of geography (city, district, neighbourhood, etc.)
-CREATE TABLE
-    geographical_levels (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+-- === Table: geographical_levels ===
+CREATE TABLE geographical_levels (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Table: districts
--- Stores districts within a city, each with a unique code per city
-CREATE TABLE
-    districts (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        district_code INTEGER NOT NULL, -- e.g., 1, 5
-        city_id INTEGER REFERENCES cities (id) ON DELETE CASCADE,
-        geom GEOMETRY (POLYGON, 4326), -- District geometry in WGS84
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE (city_id, district_code), -- Ensures district_code is unique per city
-        UNIQUE (city_id, name) -- Prevents duplicate district names per city
-    );
+-- === Table: districts ===
+CREATE TABLE districts (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    district_code INTEGER NOT NULL,
+    city_id INTEGER REFERENCES cities(id) ON DELETE CASCADE,
+    geom GEOMETRY(POLYGON, 4326),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(city_id, district_code),
+    UNIQUE(city_id, name)
+);
 
--- Table: neighbourhoods
--- Stores neighbourhoods within a district, each with a unique code per district and explicit city reference
-CREATE TABLE
-    neighbourhoods (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        neighbourhood_code INTEGER NOT NULL, -- e.g., 1, 3
-        district_id INTEGER REFERENCES districts (id) ON DELETE CASCADE,
-        city_id INTEGER REFERENCES cities (id) ON DELETE CASCADE, -- NEW: explicit reference to city
-        geom GEOMETRY (POLYGON, 4326), -- Neighbourhood geometry in WGS84
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE (district_id, neighbourhood_code), -- Ensures neighbourhood_code is unique per district
-        UNIQUE (district_id, name)                -- Prevents duplicate names per district
-    );
+-- === Table: neighbourhoods ===
+CREATE TABLE neighbourhoods (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    neighbourhood_code INTEGER NOT NULL,
+    district_id INTEGER REFERENCES districts(id) ON DELETE CASCADE,
+    city_id INTEGER REFERENCES cities(id) ON DELETE CASCADE,
+    geom GEOMETRY(POLYGON, 4326),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(district_id, neighbourhood_code),
+    UNIQUE(district_id, name)
+);
 
--- Table: indicator_definitions
--- Defines what each indicator measures (e.g., population, average income)
-CREATE TABLE
-    indicator_definitions (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        unit TEXT,
-        description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+-- === Table: indicator_definitions ===
+CREATE TABLE indicator_definitions (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    unit TEXT,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Table: indicators
--- Stores the values of each indicator for a given area and year
-CREATE TABLE
-    indicators (
-        id SERIAL PRIMARY KEY,
-        indicator_def_id INTEGER REFERENCES indicator_definitions (id) ON DELETE CASCADE,
-        geo_level_id INTEGER REFERENCES geographical_levels (id),
-        geo_id INTEGER NOT NULL, -- Refers to city/district/neighbourhood ID depending on geo_level_id
-        year INTEGER NOT NULL,
-        value DECIMAL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE (indicator_def_id, geo_level_id, geo_id, year)
-    );
+-- === Table: indicators ===
+CREATE TABLE indicators (
+    id SERIAL PRIMARY KEY,
+    indicator_def_id INTEGER REFERENCES indicator_definitions(id) ON DELETE CASCADE,
+    geo_level_id INTEGER REFERENCES geographical_levels(id),
+    geo_id INTEGER NOT NULL,
+    year INTEGER NOT NULL,
+    value DECIMAL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(indicator_def_id, geo_level_id, geo_id, year)
+);
 
--- Table: point_features
--- Stores individual geolocated features (e.g., schools, hospitals)
-CREATE TABLE
-    point_features (
-        id SERIAL PRIMARY KEY,
-        feature_type TEXT NOT NULL, -- e.g., "school", "park"
-        name TEXT,
-        latitude DECIMAL NOT NULL,
-        longitude DECIMAL NOT NULL,
-        geom GEOMETRY (POINT, 4326),
-        geo_level_id INTEGER REFERENCES geographical_levels (id),
-        geo_id INTEGER NOT NULL,
-        properties JSONB, -- Stores feature attributes in JSON format
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+-- === Table: feature_types ===
+CREATE TABLE feature_types (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Indexes for improved query performance
+-- === Table: point_features ===
+CREATE TABLE point_features (
+    id SERIAL PRIMARY KEY,
+    feature_type_id INTEGER REFERENCES feature_types(id) ON DELETE SET NULL,
+    name TEXT,
+    latitude DECIMAL NOT NULL,
+    longitude DECIMAL NOT NULL,
+    geom GEOMETRY(POINT, 4326),
+    geo_level_id INTEGER REFERENCES geographical_levels(id),
+    geo_id INTEGER NOT NULL,
+    properties JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- === View: geographical_unit_view ===
+-- Does NOT use SECURITY DEFINER
+CREATE OR REPLACE VIEW geographical_unit_view AS
+SELECT
+    1 AS geo_level_id,
+    c.id AS geo_id,
+    c.name,
+    NULL::INTEGER AS code,
+    NULL::INTEGER AS parent_id,
+    c.id AS city_id,
+    c.created_at,
+    c.updated_at
+FROM cities c
+
+UNION ALL
+
+SELECT
+    2,
+    d.id,
+    d.name,
+    d.district_code,
+    d.city_id,
+    d.city_id,
+    d.created_at,
+    d.updated_at
+FROM districts d
+
+UNION ALL
+
+SELECT
+    3,
+    n.id,
+    n.name,
+    n.neighbourhood_code,
+    n.district_id,
+    n.city_id,
+    n.created_at,
+    n.updated_at
+FROM neighbourhoods n;
+
+-- === Indexes ===
 CREATE INDEX idx_indicators_geo ON indicators (geo_level_id, geo_id);
-
 CREATE INDEX idx_point_features_geo ON point_features (geo_level_id, geo_id);
+CREATE INDEX idx_point_features_type ON point_features (feature_type_id);
 
-CREATE INDEX idx_point_features_type ON point_features (feature_type);
-
--- 🔓 TEMPORARY PERMISSIONS FOR INGEST SCRIPT (commented out by default)
--- These lines allow read access for the Supabase service role to run the ETL script.
--- Uncomment if you run this project in a Supabase environment.
-
+-- === Permissions (service_role + anon) ===
 GRANT USAGE ON SCHEMA public TO service_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO service_role;
 
@@ -114,8 +144,49 @@ GRANT USAGE ON SCHEMA public TO anon;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO anon;
 
-GRANT INSERT ON TABLE public.districts TO service_role;
-GRANT INSERT ON TABLE public.neighbourhoods TO service_role;
+-- Insert permissions
+GRANT INSERT ON districts TO service_role;
+GRANT INSERT ON neighbourhoods TO service_role;
+GRANT INSERT ON point_features TO service_role;
+GRANT INSERT ON feature_types TO service_role;
 
+-- Sequence access
 GRANT USAGE, SELECT ON SEQUENCE districts_id_seq TO service_role;
 GRANT USAGE, SELECT ON SEQUENCE neighbourhoods_id_seq TO service_role;
+GRANT USAGE, SELECT ON SEQUENCE point_features_id_seq TO service_role;
+GRANT USAGE, SELECT ON SEQUENCE feature_types_id_seq TO service_role;
+
+-- === RLS (Row-Level Security) Activation ===
+ALTER TABLE cities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE districts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE neighbourhoods ENABLE ROW LEVEL SECURITY;
+ALTER TABLE geographical_levels ENABLE ROW LEVEL SECURITY;
+ALTER TABLE indicator_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE indicators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE feature_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE point_features ENABLE ROW LEVEL SECURITY;
+
+-- === RLS Policies ===
+CREATE POLICY "Service role access on cities"
+  ON cities FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on districts"
+  ON districts FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on neighbourhoods"
+  ON neighbourhoods FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on geographical_levels"
+  ON geographical_levels FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on indicator_definitions"
+  ON indicator_definitions FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on indicators"
+  ON indicators FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on feature_types"
+  ON feature_types FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "Service role access on point_features"
+  ON point_features FOR ALL TO service_role USING (true) WITH CHECK (true);
