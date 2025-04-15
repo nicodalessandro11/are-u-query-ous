@@ -1,63 +1,88 @@
-# Métodos y Recursos
+# 🧪 Methods and Resources
 
-## 1. Enfoque metodológico
+## 1. Methodological Approach
 
-El desarrollo del prototipo se ha abordado mediante una metodología iterativa e incremental, dividiendo el trabajo en fases claramente diferenciadas: diseño conceptual (CA1), definición de requisitos funcionales y diseño de interacción (CA2), e implementación técnica (CA3).
+The **Are-U-Query-ous** project follows a **modular, data-centric development methodology**, progressing iteratively through:
 
-Cada fase ha aportado decisiones clave para la siguiente, lo que permitió construir una solución con alineación entre la experiencia de usuario, los datos geoespaciales, y la arquitectura técnica. El enfoque se apoya en principios de desarrollo ágil y arquitectura desacoplada para permitir evolución, escalabilidad y mantenibilidad del sistema.
+- ✅ **CA1**: Data modeling, PostGIS schema definition, and SQL automation
+- ✅ **CA2**: Geospatial data ingestion, ETL validation, and geometry tests
+- 🔄 **CA3** *(In Progress)*: Backend and frontend development to expose and explore the geospatial data interactively
 
-## 2. Stack tecnológico y herramientas
+Each step is designed to be **reproducible**, **testable**, and **separable**, aligning with best practices in open geospatial development and academic prototyping.
 
-Para el desarrollo del prototipo funcional, se definió una pila tecnológica moderna dividida en tres capas:
+---
 
-### Backend
+## 2. Tech Stack Overview
 
-- **Lenguaje:** Python 3.13
-- **Framework:** FastAPI
-- **Servidor:** Uvicorn (ASGI)
-- **Base de datos:** PostgreSQL con extensión PostGIS
-- **Conexión:** psycopg2
-- **Gestión de entorno:** python-dotenv
-- **Contenerización:** Docker (python:3.13-slim)
+### 📦 Data Layer (Core focus so far)
 
-### Frontend
+- **ETL Language:** Python 3.12
+- **Libraries:** `GeoPandas`, `Shapely`, `dotenv`, `psycopg2`, `pytest`
+- **Database:** Supabase (PostgreSQL + PostGIS)
+- **Upload Strategy:** REST API (Supabase Python client)
+- **Validation:** Geometry integrity tests via Pytest
+- **Automation:** `Makefile`
 
-- **Framework:** React.js
-- **Visualización:** Leaflet.js
-- **Bundler:** Vite
-- **API:** Fetch con servicios REST
-- **Despliegue local/producción:** Docker + Serve
+### 🧠 Backend (Upcoming)
 
-### Infraestructura y CI/CD
+- **Framework:** FastAPI (planned)
+- **Structure:** `routes`, `schemas`, `services`, `models`, `utils`
+- **Testing:** `backend/tests`
 
-- **Orquestación:** Docker Compose
-- **Configuración:** .env.example
-- **Integración futura:** GitHub Actions
+### 🌐 Frontend (Upcoming)
 
-## 3. Organización del proyecto
+- **Tooling:** React + Leaflet (planned)
+- **Directory:** `frontend/src`, `public`
+- **Static hosting (future):** Supabase or GitHub Pages
 
-El proyecto se estructura con separación por responsabilidades:
+### ⚙️ DevOps & Tooling
 
-```
+- **Environment setup:** `.env` + `.env.example`
+- **Task runner:** `make` (schema, test, upload, clean)
+- **Containerization (optional):** `docker-compose.yml` present
+
+---
+
+## 3. Folder Structure
+
+```bash
 are-u-query-ous/
-├── backend/
+├── backend/              # API routes, models, services, utils (planned FastAPI)
 │   ├── routes/
 │   ├── schemas/
 │   ├── services/
 │   └── tests/
-├── frontend/
-│   ├── components/
-│   ├── hooks/
-│   ├── contexts/
-│   └── types.js
-├── data/
-├── deployment/
-├── docs/
-└── .github/
+├── data/                 # Geospatial ingestion pipeline
+│   ├── raw/             # GeoJSON/TopoJSON input
+│   ├── processed/       # Upload-ready JSON files
+│   ├── scripts/         # ETL logic (Barcelona, Madrid)
+│   └── tests/           # Pytest geometry validations
+├── database/             # Supabase schema + views
+│   ├── schema.sql
+│   ├── views.sql
+│   └── seed.sql
+├── docs/                 # Setup guide, reports, commit template
+├── frontend/             # Web UI (to be implemented)
+│   ├── public/
+│   └── src/
+├── .env.example          # Template for Supabase credentials
+├── .gitignore
+├── docker-compose.yml    # (Optional) for future containerization
+├── Makefile              # One-liner project automation
+├── pytest.ini
+├── README.md
+└── requirements.txt
 ```
 
-## 4. Recursos adicionales
+---
 
-- Manual de instalación (`installation_manual.md`)
-- Archivo `.env.example`
-- Reportes por fase (`implementation_report.md`, `project_schedule_update.md`)
+## 4. Key Resources
+
+| Resource                    | Purpose                                                   |
+|----------------------------|-----------------------------------------------------------|
+| `Makefile`                 | One command to setup, test and deploy the full project    |
+| `docs/SETUP.md`            | Step-by-step environment configuration                    |
+| `.env.example`             | Template for secure connection to Supabase               |
+| `database/*.sql`           | All schema, view and seed instructions                    |
+| `data/scripts/ingest_data.py` | Full ETL + upload automation                          |
+| `data/tests/test_geometry_integrity.py` | Validates geometry consistency           |
