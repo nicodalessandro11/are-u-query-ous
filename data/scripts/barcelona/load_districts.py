@@ -27,7 +27,7 @@ def run():
 
             prepared_data.append({
                 "name": name,
-                "code": code,
+                "district_code": code,
                 "city_id": city_id,
                 "geom": f"SRID=4326;{wkt_geom}"
             })

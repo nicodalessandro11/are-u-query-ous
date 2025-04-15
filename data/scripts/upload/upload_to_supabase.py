@@ -5,8 +5,10 @@ from pathlib import Path
 from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
+BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
 
 # === CONFIGURACIÓN ===
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -26,33 +28,56 @@ def upload(table_name, records):
 
     try:
         response = supabase.table(table_name).insert(records).execute()
-        if response.data:
+
+        if hasattr(response, "status_code"):
+            print(f"📦 [{table_name}] Status code: {response.status_code}")
+
+        if hasattr(response, "data") and response.data:
             print(f"✅ Uploaded {len(response.data)} records to '{table_name}'")
-        if response.error:
-            print(f"❌ Error uploading to '{table_name}': {response.error}")
+        else:
+            print(f"⚠️ No data returned from '{table_name}'. Possible silent error.")
+            print(f"📄 Full response: {response}")
     except Exception as e:
-        print(f"❌ Exception in upload to '{table_name}': {e}")
+        print(f"❌ Exception during upload to '{table_name}': {e}")
+        import traceback
+        traceback.print_exc()
 
-# === FUNCIÓN PRINCIPAL ===
-def run_all_uploads():
-    print("📡 Uploading data to Supabase...")
-
+# === UPLOAD BLOQUES SEPARADOS ===
+def run_district_upload():
+    print("📤 Uploading districts to Supabase...")
     base_path = Path("data/processed")
-
-    files_to_upload = [
-        ("districts", base_path / "insert_ready_districts_bcn.json"),
-        ("districts", base_path / "insert_ready_districts_madrid.json"),
-        ("neighbourhoods", base_path / "insert_ready_neighbourhoods_bcn.json"),
-        ("neighbourhoods", base_path / "insert_ready_neighbourhoods_madrid.json"),
+    files = [
+        ("districts", BASE_DIR / base_path / "insert_ready_districts_bcn.json"),
+        ("districts", BASE_DIR / base_path / "insert_ready_districts_madrid.json"),
     ]
 
-    for table, file_path in files_to_upload:
+    for table, file_path in files:
         if file_path.exists():
             data = load_json_data(file_path)
             upload(table, data)
         else:
             print(f"⚠️ File not found: {file_path}")
 
+def run_neighbourhood_upload():
+    print("📤 Uploading neighbourhoods to Supabase...")
+    base_path = Path("data/processed")
+    files = [
+        ("neighbourhoods", BASE_DIR / base_path / "insert_ready_neighbourhoods_bcn.json"),
+        ("neighbourhoods", BASE_DIR / base_path / "insert_ready_neighbourhoods_madrid.json"),
+    ]
+
+    for table, file_path in files:
+        if file_path.exists():
+            data = load_json_data(file_path)
+            upload(table, data)
+        else:
+            print(f"⚠️ File not found: {file_path}")
+
+# === FUNCIÓN GENERAL (por si querés correrlo todo igual)
+def run_all_uploads():
+    print("📡 Uploading data to Supabase...")
+    run_district_upload()
+    run_neighbourhood_upload()
     print("✅ Upload to Supabase complete.")
 
 if __name__ == "__main__":

@@ -1,20 +1,34 @@
-# data/scripts/madrid/load_neighbourhoods.py
-
 import geopandas as gpd
 from shapely.wkt import dumps
 from pathlib import Path
 import json
+import os
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
-BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+# === SETUP ===
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Manual mapping of district codes to Supabase district IDs
-district_map = {
-    "01": 11, "02": 12, "03": 13, "04": 14, "05": 15,
-    "06": 16, "07": 17, "08": 18, "09": 19, "10": 20,
-    "11": 21, "12": 22, "13": 23, "14": 24, "15": 25,
-    "16": 26, "17": 27, "18": 28, "19": 29, "20": 30,
-    "21": 31
-}
+BASE_DIR = Path(__file__).resolve().parents[3]
+city_id = 2  # Madrid
+
+def get_district_map():
+    """Fetch real district_id values from Supabase for Madrid."""
+    response = supabase.table("districts") \
+        .select("id, district_code, city_id") \
+        .eq("city_id", city_id) \
+        .execute()
+    
+    if not response.data:
+        raise Exception("❌ No districts found for Madrid (city_id = 2) in Supabase.")
+    
+    return {
+        d["district_code"]: d["id"]
+        for d in response.data
+    }
 
 def run():
     input_path = BASE_DIR / "data/raw/madrid-neighbourhoods.json"
@@ -24,10 +38,25 @@ def run():
     prepared_data = []
     errores = []
 
+    try:
+        district_map = get_district_map()
+    except Exception as e:
+        print(f"❌ Error fetching district map: {e}")
+        return
+
     for _, row in gdf.iterrows():
-        name = row.get("NOMBRE", "Unnamed").strip()
-        code = str(row.get("CODBAR", row.get("CODIGO", "")).strip()).zfill(2)
-        district_code = str(row.get("CODDIS", "")).zfill(2)
+        props = row.get("properties", row)
+
+        raw_name = props.get("NOMBRE", "Unnamed").strip()
+        raw_code = props.get("COD_BAR", "").strip()
+        raw_district_code = props.get("COD_DIS_TX", "").strip()
+
+        if not raw_code or not raw_district_code:
+            print(f"⚠️ Missing code or district_code in '{raw_name}'. Skipping.")
+            continue
+
+        code = raw_code.zfill(2)
+        district_code = raw_district_code.zfill(2)
 
         district_id = district_map.get(district_code)
         if not district_id:
@@ -37,13 +66,14 @@ def run():
         try:
             geom_wkt = dumps(row.geometry)
         except Exception as e:
-            print(f"⚠️ Error in neighbourhood '{name}': {e}")
+            print(f"⚠️ Error in neighbourhood '{raw_name}': {e}")
             continue
 
         prepared_data.append({
-            "name": name,
-            "code": code,
+            "name": raw_name,
+            "neighbourhood_code": code,
             "district_id": district_id,
+            "city_id": city_id,
             "geom": f"SRID=4326;{geom_wkt}"
         })
 
@@ -53,7 +83,7 @@ def run():
 
     print(f"✅ Saved {len(prepared_data)} Madrid neighbourhoods to {output_path}")
     if errores:
-        print("❗ Some district codes were not found:", set(errores))
+        print("❗ Some district codes were not matched:", set(errores))
 
 if __name__ == "__main__":
     run()

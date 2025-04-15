@@ -17,8 +17,18 @@ def run():
     prepared_data = []
 
     for _, row in gdf.iterrows():
-        name = row.get("NOMBRE", row.get("name", "Unnamed")).strip()
-        code = str(row.get("CODDIST", row.get("CODIGO", "")).strip()).zfill(2)
+        props = row.get("properties", row)
+
+        raw_name = props.get("NOMBRE", props.get("name", "")).strip()
+        raw_code = props.get("COD_DIS_TX", "").strip()
+
+        if not raw_code:
+            print(f"⚠️ District '{raw_name}' has empty code. Skipping.")
+            continue
+
+        name = raw_name
+        code = str(raw_code).zfill(2)
+
         try:
             geom_wkt = dumps(row.geometry)
         except Exception as e:
@@ -27,7 +37,7 @@ def run():
 
         prepared_data.append({
             "name": name,
-            "code": code,
+            "district_code": code,
             "city_id": city_id,
             "geom": f"SRID=4326;{geom_wkt}"
         })

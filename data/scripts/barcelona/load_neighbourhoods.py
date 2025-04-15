@@ -3,22 +3,34 @@
 import json
 from shapely import wkt
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
-BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
+# === SETUP ===
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Mapeo de nombre de distrito a ID en Supabase
-district_map = {
-    "Ciutat Vella": 1,
-    "Eixample": 2,
-    "Sants-Montjuïc": 3,
-    "Les Corts": 4,
-    "Sarrià-Sant Gervasi": 5,
-    "Gràcia": 6,
-    "Horta-Guinardó": 7,
-    "Nou Barris": 8,
-    "Sant Andreu": 9,
-    "Sant Martí": 10
-}
+BASE_DIR = Path(__file__).resolve().parents[3]
+city_id = 1  # Barcelona
+
+def get_district_map():
+    """Fetch real district_id values from Supabase for Barcelona."""
+    response = supabase.table("districts") \
+        .select("id, name, city_id") \
+        .eq("city_id", city_id) \
+        .execute()
+
+    if not response.data:
+        raise Exception("❌ No districts found for Barcelona (city_id = 1) in Supabase.")
+    
+    # Mapping by district name (case-sensitive)
+    return {
+        d["name"]: d["id"]
+        for d in response.data
+    }
 
 def run():
     input_path = BASE_DIR / "data/raw/bcn-neighbourhoods.json"
@@ -26,6 +38,12 @@ def run():
 
     with input_path.open(encoding="utf-8") as f:
         raw_data = json.load(f)
+
+    try:
+        district_map = get_district_map()
+    except Exception as e:
+        print(f"❌ Error fetching district map: {e}")
+        return
 
     prepared_data = []
     errores = []
@@ -47,8 +65,9 @@ def run():
 
             prepared_data.append({
                 "name": name,
-                "code": code,
+                "neighbourhood_code": code,
                 "district_id": district_id,
+                "city_id": city_id,
                 "geom": f"SRID=4326;{wkt_geom}"
             })
 
@@ -60,7 +79,7 @@ def run():
     with output_path.open("w", encoding="utf-8") as f:
         json.dump(prepared_data, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Saved {len(prepared_data)} neighbourhoods to {output_path}")
+    print(f"✅ Saved {len(prepared_data)} Barcelona neighbourhoods to {output_path}")
 
     if errores:
         print("❗ Issues with the following entries:", set(errores))
