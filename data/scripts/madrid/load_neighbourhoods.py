@@ -1,3 +1,5 @@
+# data/scripts/madrid/load_neighbourhoods.py
+
 import geopandas as gpd
 from shapely.wkt import dumps
 from pathlib import Path
@@ -26,7 +28,7 @@ def get_district_map():
         raise Exception("❌ No districts found for Madrid (city_id = 2) in Supabase.")
     
     return {
-        d["district_code"]: d["id"]
+        int(d["district_code"]): d["id"]  # ✅ Ensure keys are integers
         for d in response.data
     }
 
@@ -55,8 +57,12 @@ def run():
             print(f"⚠️ Missing code or district_code in '{raw_name}'. Skipping.")
             continue
 
-        code = raw_code.zfill(2)
-        district_code = raw_district_code.zfill(2)
+        try:
+            code = int(raw_code)
+            district_code = int(raw_district_code)
+        except ValueError:
+            print(f"⚠️ Invalid code in '{raw_name}': '{raw_code}' or '{raw_district_code}' not convertible to int.")
+            continue
 
         district_id = district_map.get(district_code)
         if not district_id:

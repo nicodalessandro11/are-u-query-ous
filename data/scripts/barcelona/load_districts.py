@@ -19,8 +19,14 @@ def run():
     for d in raw_data:
         try:
             name = d["nom_districte"].strip()
-            code = d["Codi_Districte"].strip().zfill(2)
+            code = d["Codi_Districte"].strip()
             wkt_geom = d["geometria_wgs84"].strip()
+
+            try:
+                code = int(code)
+            except ValueError:
+                print(f"⚠️ Invalid district code '{code}' in '{name}'. Skipping.")
+                continue
 
             # Validate WKT
             _ = wkt.loads(wkt_geom)

@@ -26,9 +26,9 @@ def get_district_map():
     if not response.data:
         raise Exception("❌ No districts found for Barcelona (city_id = 1) in Supabase.")
     
-    # Mapping by district name (case-sensitive)
+    # Normalize names for robust matching
     return {
-        d["name"]: d["id"]
+        d["name"].strip().lower(): d["id"]
         for d in response.data
     }
 
@@ -51,9 +51,15 @@ def run():
     for b in raw_data:
         try:
             name = b["nom_barri"].strip()
-            code = b["codi_barri"].strip().zfill(2)
-            district_name = b["nom_districte"].strip()
+            raw_code = b["codi_barri"].strip()
+            district_name = b["nom_districte"].strip().lower()
             wkt_geom = b["geometria_wgs84"].strip()
+
+            try:
+                code = int(raw_code)
+            except ValueError:
+                print(f"⚠️ Invalid neighbourhood code '{raw_code}' in '{name}'. Skipping.")
+                continue
 
             district_id = district_map.get(district_name)
             if not district_id:
@@ -86,3 +92,4 @@ def run():
 
 if __name__ == "__main__":
     run()
+

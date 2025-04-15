@@ -27,7 +27,12 @@ def run():
             continue
 
         name = raw_name
-        code = str(raw_code).zfill(2)
+
+        try:
+            code = int(raw_code)
+        except ValueError:
+            print(f"⚠️ Invalid district code '{raw_code}' in '{name}'. Skipping.")
+            continue
 
         try:
             geom_wkt = dumps(row.geometry)
@@ -37,7 +42,7 @@ def run():
 
         prepared_data.append({
             "name": name,
-            "district_code": code,
+            "district_code": int(code),
             "city_id": city_id,
             "geom": f"SRID=4326;{geom_wkt}"
         })

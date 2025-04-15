@@ -27,7 +27,7 @@ CREATE TABLE
     districts (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
-        district_code TEXT NOT NULL, -- e.g., "01", "05"
+        district_code INTEGER NOT NULL, -- e.g., 1, 5
         city_id INTEGER REFERENCES cities (id) ON DELETE CASCADE,
         geom GEOMETRY (POLYGON, 4326), -- District geometry in WGS84
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -42,7 +42,7 @@ CREATE TABLE
     neighbourhoods (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
-        neighbourhood_code TEXT NOT NULL, -- e.g., "01", "03"
+        neighbourhood_code INTEGER NOT NULL, -- e.g., 1, 3
         district_id INTEGER REFERENCES districts (id) ON DELETE CASCADE,
         city_id INTEGER REFERENCES cities (id) ON DELETE CASCADE, -- NEW: explicit reference to city
         geom GEOMETRY (POLYGON, 4326), -- Neighbourhood geometry in WGS84
@@ -51,7 +51,6 @@ CREATE TABLE
         UNIQUE (district_id, neighbourhood_code), -- Ensures neighbourhood_code is unique per district
         UNIQUE (district_id, name)                -- Prevents duplicate names per district
     );
-
 
 -- Table: indicator_definitions
 -- Defines what each indicator measures (e.g., population, average income)
@@ -89,6 +88,7 @@ CREATE TABLE
         name TEXT,
         latitude DECIMAL NOT NULL,
         longitude DECIMAL NOT NULL,
+        geom GEOMETRY (POINT, 4326),
         geo_level_id INTEGER REFERENCES geographical_levels (id),
         geo_id INTEGER NOT NULL,
         properties JSONB, -- Stores feature attributes in JSON format
@@ -119,4 +119,3 @@ GRANT INSERT ON TABLE public.neighbourhoods TO service_role;
 
 GRANT USAGE, SELECT ON SEQUENCE districts_id_seq TO service_role;
 GRANT USAGE, SELECT ON SEQUENCE neighbourhoods_id_seq TO service_role;
-

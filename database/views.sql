@@ -7,7 +7,7 @@ SELECT
     1 AS geo_level_id, -- Level 1: City
     c.id AS geo_id,
     c.name AS name,
-    NULL::TEXT AS code,
+    NULL::INTEGER AS code,
     NULL::INTEGER AS parent_id,
     c.created_at,
     c.updated_at
