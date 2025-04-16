@@ -2,8 +2,10 @@ from barcelona import load_districts as bcn_d
 from barcelona import load_neighbourhoods as bcn_n
 from madrid import load_districts as mad_d
 from madrid import load_neighbourhoods as mad_n
-from barcelona import load_point_features as bcn_p 
-
+from barcelona import load_point_features as bcn_p
+from barcelona import load_indicators as bcn_i
+# from madrid import load_point_features as mad_p
+# from madrid import load_indicators as mad_i
 from upload import upload_to_supabase
 import subprocess
 import sys
@@ -24,7 +26,14 @@ def run_etls_and_upload():
     upload_to_supabase.run_neighbourhood_upload()
 
     bcn_p.run()
+    # mad_p.run()
     print("✅ Point features ETL completed.\n")
+
+    bcn_i.run()
+    # mad_i.run()
+    print("✅ Indicator ETL completed.\n")
+
+    upload_to_supabase.run_indicator_upload()
 
 def run_tests():
     print("🧪 Running integrity tests...\n")

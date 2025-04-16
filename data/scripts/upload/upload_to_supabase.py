@@ -16,7 +16,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# === FUNCIONES AUXILIARES ===
+# === AUXILIARY FUNCTIONS ===
 def load_json_data(file_path):
     with open(file_path, encoding="utf-8") as f:
         return json.load(f)
@@ -79,6 +79,21 @@ def run_point_feature_upload():
     files = [
         ("point_features", BASE_DIR / base_path / "insert_ready_point_features_bcn.json"),
         ("point_features", BASE_DIR / base_path / "insert_ready_point_features_madrid.json"),
+    ]
+
+    for table, file_path in files:
+        if file_path.exists():
+            data = load_json_data(file_path)
+            upload(table, data)
+        else:
+            print(f"⚠️ File not found: {file_path}")
+
+def run_indicator_upload():
+    print("📤 Uploading indicators to Supabase...")
+    base_path = Path("data/processed")
+    files = [
+        ("indicators", BASE_DIR / base_path / "insert_ready_indicators_bcn.json"),
+        ("indicators", BASE_DIR / base_path / "insert_ready_indicators_madrid.json"),
     ]
 
     for table, file_path in files:

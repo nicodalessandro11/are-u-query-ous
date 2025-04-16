@@ -20,20 +20,20 @@ geo_level_id = 3  # Neighbourhood level for point features
 
 # === MAPEO DE CATEGORÍAS ===
 feature_type_map = {
-    "Biblioteques de Barcelona": "Bibliotecas",
-    "Ateneus": "Centros culturales",
-    "Grans auditoris": "Auditorios",
-    "Espais d'interès patrimonial": "Espacios patrimoniales",
-    "Fàbriques de Creació": "Fábricas de creación",
-    "Centres cívics": "Centros culturales",
-    "Cases de la Festa": "Centros culturales",
-    "Museus i col·leccions": "Museos",
-    "Cinemes": "Cines",
-    "Centres d'exposicions": "Centros de exposiciones",
-    "Arxius de districte": "Archivos",
-    "Sales de música en viu": "Salas de música en vivo",
-    "Arxius i biblioteques patrimonials": "Archivos",
-    "Sales d'arts escèniques": "Salas de artes escénicas",
+    "Biblioteques de Barcelona": "Libraries",
+    "Ateneus": "Cultural centers",
+    "Grans auditoris": "Auditoriums",
+    "Espais d'interès patrimonial": "Heritage spaces",
+    "Fàbriques de Creació": "Creation factories",
+    "Centres cívics": "Cultural centers",
+    "Cases de la Festa": "Festival cases",
+    "Museus i col·leccions": "Museums",
+    "Cinemes": "Cinemas",
+    "Centres d'exposicions": "Exhibition centers",
+    "Arxius de districte": "District archives",
+    "Sales de música en viu": "Live music venues",
+    "Arxius i biblioteques patrimonials": "Archives and patrimonial libraries",
+    "Sales d'arts escèniques": "Theater sales",
 }
 
 
@@ -52,11 +52,11 @@ def get_neighbourhood_map():
     return {(n["district_id"], n["neighbourhood_code"]): n["id"] for n in response.data}
 
 
-def get_feature_type_id_map():
-    """Fetch feature_type_id values from Supabase for normalized categories."""
-    response = supabase.table("feature_types").select("id, name").execute()
+def get_feature_definition_id_map():
+    """Fetch feature_definition_id values from Supabase for normalized categories."""
+    response = supabase.table("feature_definitions").select("id, name").execute()
     if not response.data:
-        raise Exception("❌ No feature types found in Supabase.")
+        raise Exception("❌ No feature definitions found in Supabase.")
     return {item["name"]: item["id"] for item in response.data}
 
 
@@ -66,7 +66,7 @@ def run():
 
     df = pd.read_csv(input_path)
     neighbourhood_map = get_neighbourhood_map()
-    feature_type_id_map = get_feature_type_id_map()
+    feature_definition_id_map = get_feature_definition_id_map()
 
     prepared_data = []
     errores = []
@@ -88,11 +88,11 @@ def run():
             original_type = row["Tipus_Equipament"].strip()
             normalized_type = feature_type_map.get(original_type)
 
-            if normalized_type is None or normalized_type not in feature_type_id_map:
+            if normalized_type is None or normalized_type not in feature_definition_id_map:
                 errores.append(original_type)
                 continue
 
-            feature_type_id = feature_type_id_map[normalized_type]
+            feature_definition_id = feature_definition_id_map[normalized_type]
             name = row["Nom_Equipament"].strip()
 
             # Group all other fields as JSON properties
@@ -120,7 +120,7 @@ def run():
 
             prepared_data.append(
                 {
-                    "feature_type_id": feature_type_id,
+                    "feature_definition_id": feature_definition_id,
                     "name": name,
                     "latitude": lat,
                     "longitude": lon,

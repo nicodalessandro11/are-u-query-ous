@@ -26,18 +26,19 @@ project/
 ├── data/
 │   ├── raw/               # Original unprocessed datasets
 │   ├── processed/         # Transformed datasets ready for upload
-│   └── tests/             # Integrity and schema validation tests
-│
-├── load/
-│   ├── barcelona/
-│   │   └── load_dataset_x.py    # ETL scripts for Barcelona datasets
-│   └── madrid/
-│       └── load_dataset_y.py    # ETL scripts for Madrid datasets
-│
-├── upload/
-│   └── upload_to_supabase.py    # Upload logic using Supabase SDK
-│
-└── run_all.py            # Main orchestrator script to run ETLs, tests, and uploads
+│   ├── __init__.py        # Package initialization
+│   ├── scripts/
+│   │   ├── barcelona/
+│   │   │   └── load_[table_name].py    # ETL scripts for Barcelona datasets tables
+│   │   │   └── ...
+│   │   ├──madrid/
+│   │   │    └── load_[table_name].py    # ETL scripts for Madrid datasets tables
+│   │   │    └── ...
+│   │   └── upload/
+│   │       └── upload_to_supabase.py    # Upload logic using Supabase SDK
+│   ├── ingest_data.py    # Main orchestrator script to run ETLs, tests, and uploads
+│   ├── tests/            # Integrity and schema validation tests
+│   │   └── __init__.py   # Test package initialization
 ```
 
 ---
@@ -51,7 +52,7 @@ This script:
 - Executes pytest validation tests
 - Continues uploading only if all tests pass
 
-### Simplified Execution Flow:
+### Simplified Execution Flow Example:
 
 ```python
 bcn_d.run()         # Barcelona districts
@@ -63,6 +64,8 @@ mad_n.run()         # Madrid neighbourhoods
 run_tests()         # Pytest validations
 
 upload_to_supabase.run_neighbourhood_upload()
+
+# Continue with other datasets...
 ```
 
 ---
@@ -80,7 +83,7 @@ upload_to_supabase.run_neighbourhood_upload()
 
 - Raw files: `data/raw/[city]_[dataset].csv`
 - Processed files: `data/processed/[city]_[dataset]_clean.csv`
-- ETL script: `load/[city]/load_[dataset].py`
+- ETL script: `data/scripts/[city]/load_[table_name].py`
 
 ---
 
