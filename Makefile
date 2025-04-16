@@ -15,16 +15,17 @@ PROCESSED_DIR=data/processed
 
 ## 📦 Install required Python packages inside virtual environment
 install:
+	@echo "📦 Upgrading pip..."
+	pip install --upgrade pip
 	@echo "📦 Installing Python dependencies from requirements.txt..."
 	pip install -r requirements.txt
 	@echo "✅ Dependencies installed."
 
-## 🔁 Drop all existing tables (DEV ONLY — use with caution!)
-reset-db:
-	@echo "🧨 Dropping all existing tables in Supabase..."
-	psql "$$DATABASE_URL" -f $(SUPABASE_SQL_DIR)/drop_all.sql
-	@echo "✅ Database reset complete."
-
+## 🧹 Drop all existing tables (DEV ONLY — use with caution!)
+reset:
+	@echo "🧨 Performing full database reset..."
+	psql "$$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	@echo "✅ Full database reset complete."
 
 ## 🛠️ Set up Supabase: schema, views, and seed data
 setup:
@@ -84,4 +85,5 @@ help:
 	@echo "  make ingest     - Run ETL + test + upload to Supabase"
 	@echo "  make dev        - Run ETL + test (skip upload)"
 	@echo "  make clean      - Delete processed files and caches"
+	@echo "  make reset-db   - Drop all existing tables"
 	@echo ""

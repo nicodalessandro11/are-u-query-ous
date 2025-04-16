@@ -1,4 +1,4 @@
-#!/workspaces/are-u-query-ous/venv/bin/python3
+#!/Users/nicolasdalessandro/Desktop/are-u-query-ous/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1,5 +1,12 @@
--- Enable PostGIS extension (note: it installs in the public schema by default)
-CREATE EXTENSION IF NOT EXISTS postgis;
+-- Note: PostGIS extension must be enabled in Supabase dashboard first
+-- Database -> Extensions -> PostGIS
+
+-- Set search path to include public schema
+SET search_path TO public;
+
+-- Enable PostGIS extension in public schema explicitly
+DROP EXTENSION IF EXISTS postgis CASCADE;
+CREATE EXTENSION postgis SCHEMA public;
 
 -- === Table: cities ===
 CREATE TABLE cities (
@@ -91,52 +98,12 @@ CREATE TABLE point_features (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- === View: geographical_unit_view ===
--- Does NOT use SECURITY DEFINER
-CREATE OR REPLACE VIEW geographical_unit_view AS
-SELECT
-    1 AS geo_level_id,
-    c.id AS geo_id,
-    c.name,
-    NULL::INTEGER AS code,
-    NULL::INTEGER AS parent_id,
-    c.id AS city_id,
-    c.created_at,
-    c.updated_at
-FROM cities c
-
-UNION ALL
-
-SELECT
-    2,
-    d.id,
-    d.name,
-    d.district_code,
-    d.city_id,
-    d.city_id,
-    d.created_at,
-    d.updated_at
-FROM districts d
-
-UNION ALL
-
-SELECT
-    3,
-    n.id,
-    n.name,
-    n.neighbourhood_code,
-    n.district_id,
-    n.city_id,
-    n.created_at,
-    n.updated_at
-FROM neighbourhoods n;
-
 -- === Indexes ===
 CREATE INDEX idx_indicators_geo ON indicators (geo_level_id, geo_id);
 CREATE INDEX idx_point_features_geo ON point_features (geo_level_id, geo_id);
 CREATE INDEX idx_point_features_type ON point_features (feature_type_id);
 
--- === Permissions (service_role + anon) ===
+-- === Permissions ===
 GRANT USAGE ON SCHEMA public TO service_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO service_role;
 

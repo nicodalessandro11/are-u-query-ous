@@ -7,8 +7,9 @@ DROP VIEW IF EXISTS geographical_unit_view;
 -- Unifies cities, districts, and neighbourhoods into a single structure
 -- Useful for joining with indicators and point_features using (geo_level_id, geo_id)
 -- Includes `city_id` explicitly for easier filtering and joins
+-- Note: Using SECURITY INVOKER (default) to respect the permissions of the querying user
 
-CREATE OR REPLACE VIEW geographical_unit_view AS
+CREATE OR REPLACE VIEW geographical_unit_view WITH (security_invoker = on) AS
 -- Cities (Level 1)
 SELECT
     1 AS geo_level_id,            -- 1: City
