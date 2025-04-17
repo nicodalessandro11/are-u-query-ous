@@ -11,7 +11,11 @@
             "source_link": "TODO: Add source link"
         },
         "point_features": {
-            "raw_file": {},
+            "raw_file": {
+                "parques_y_jardines": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/barcelona/point_features/cultura_parcs-i-jardins.csv",
+                "varios": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/barcelona/point_features/Equipaments_del_mapa.csv",
+                "mercados": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/barcelona/point_features/mercats-centrescomercials_mercats-municipals.csv"
+            },
             "processed_file": "insert_ready_point_features_bcn.json",
             "source_link": "TODO: Add source link"
         },
@@ -102,13 +106,22 @@
             "source_link": "TODO: Add source link"
         },
         "point_features": {
-            "raw_file": "TODO: Add raw file",
+            "raw_file": {
+                "parques_y_jardines": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/point_features/200761-0-parques-jardines.csv",
+                "museos": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/point_features/201132-0-museos.csv",
+                "bibliotecas": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/point_features/201747-0-bibliobuses-bibliotecas.csv",
+                "centros_educativos": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/point_features/300614-0-centros-educativos.csv",
+                "mercados": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/point_features/mercados-madrid.csv"
+            },
             "processed_file": "insert_ready_point_features_madrid.json",
             "source_link": "TODO: Add source link"
         },
         "indicators": {
-            "raw_file": "TODO: Add raw file",
-            "processed_file": "insert_ready_indicators_madrid.csv",
+            "raw_file": {
+                "population": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/indicators/population.csv",
+                "surface": "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/madrid/indicators/surface.csv"
+            },
+            "processed_file": "insert_ready_indicators_madrid.json",
             "source_link": "TODO: Add source link"
         }
     }

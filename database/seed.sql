@@ -24,7 +24,11 @@ INSERT INTO feature_definitions (name, description) VALUES
     ('Exhibition centers', 'Spaces for artistic or thematic exhibitions'),
     ('Archives', 'Historical, district archives and heritage libraries'),
     ('Live music venues', 'Venues for concerts and musical performances'),
-    ('Performing arts venues', 'Theaters and spaces for stage performances');
+    ('Performing arts venues', 'Theaters and spaces for stage performances'),
+    ('Municipal markets', 'Public markets for food and local products'),
+    ('Parks and gardens', 'Urban green spaces including parks, gardens, and natural areas'),
+    ('Educational centers', 'Schools, colleges, and other educational institutions');
+
 
 INSERT INTO indicator_definitions (name, description, unit, category, source) VALUES
 -- 1. Population

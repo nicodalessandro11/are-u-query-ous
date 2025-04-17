@@ -31,7 +31,11 @@ This template provides a professional, consistent structure for writing Git comm
 
 ---
 
-## 🏷️ Recommended Types
+## 🧠 How to request from a language model (LLM)
+
+> "Generate a commit message with this format: `<emoji> <TYPE> | <YYYY-MM-DD> | <Summary>` with clear bullet points, focused on [describe the work you did]."
+
+## 🏷️ Available Types
 
 | Emoji  | Type      | When to use                                               |
 |--------|-----------|-----------------------------------------------------------|
@@ -46,7 +50,3 @@ This template provides a professional, consistent structure for writing Git comm
 | 🚀     | Deploy    | Deployment-related scripts or configurations              |
 
 ---
-
-## 🧠 How to request from a language model (LLM)
-
-> "Generate a commit message with this format: `<emoji> <TYPE> | <YYYY-MM-DD> | <Summary>` with clear bullet points, focused on [describe the work you did]."

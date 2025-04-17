@@ -1,114 +1,158 @@
-# ETL Pipeline Structure for Open Geodata Project
+# 🌐 ETL Pipeline Structure — *Are U Query-ous?*
 
-This document describes the standardized ETL process for integrating open geospatial datasets from multiple cities into a unified Supabase database.
-
-The pipeline is designed to ensure modularity, traceability, and scalability for loading datasets into a web application focused on everyday urban data.
+This document outlines the updated structure of the ETL pipeline for integrating and uploading open urban geospatial datasets into Supabase. The system supports multiple cities (e.g., Barcelona, Madrid) and handles various dataset types (districts, neighbourhoods, point features, indicators).
 
 ---
 
 ## 🔁 Standard ETL Flow
 
-Each dataset follows the same three-phase process:
+Each dataset follows this 3-phase process:
 
-1. **Extract**: The raw dataset (e.g., CSV or GeoJSON) is manually or programmatically downloaded and saved in `data/raw/`.
-
-2. **Transform**: The dataset is cleaned, normalized, and transformed to match the database schema. Transformed data is saved to `data/processed/`.
-
-3. **Load**: The processed data is uploaded to Supabase using the Supabase Python client.
+1. **Extract**: Dataset is downloaded (manually or via URL) into `data/raw/`.
+2. **Transform**: Data is cleaned, validated, and formatted. Output saved to `data/processed/`.
+3. **Load**: The final dataset is uploaded to Supabase.
 
 ---
 
-## 📂 Project Structure
+## 🧭 Execution Flow (Orchestration)
+
+All processes are orchestrated via:
 
 ```
-project/
-│
+scripts/etl/ingest.py
+```
+
+This script runs in this exact order:
+
+1. **District ETLs**
+2. **Neighbourhood ETLs** *(depends on districts)*
+3. ✅ **Run validation tests**
+4. **Point Feature ETLs**
+5. **Indicator ETLs**
+
+Uploads to Supabase only happen if validations pass (`pytest`).
+
+---
+
+## 📁 Project Structure
+
+```
+are-u-query-ous/
 ├── data/
-│   ├── raw/               # Original unprocessed datasets
-│   ├── processed/         # Transformed datasets ready for upload
-│   ├── __init__.py        # Package initialization
-│   ├── scripts/
+│   ├── raw/                  # Raw source files
+│   ├── processed/            # Cleaned & formatted datasets
+│
+├── scripts/
+│   ├── etl/
 │   │   ├── barcelona/
-│   │   │   └── load_[table_name].py    # ETL scripts for Barcelona datasets tables
-│   │   │   └── ...
-│   │   ├──madrid/
-│   │   │    └── load_[table_name].py    # ETL scripts for Madrid datasets tables
-│   │   │    └── ...
-│   │   └── upload/
-│   │       └── upload_to_supabase.py    # Upload logic using Supabase SDK
-│   ├── ingest_data.py    # Main orchestrator script to run ETLs, tests, and uploads
-│   ├── tests/            # Integrity and schema validation tests
-│   │   └── __init__.py   # Test package initialization
+│   │   │   ├── load_districts.py
+│   │   │   ├── load_neighbourhoods.py
+│   │   │   ├── load_point_features.py
+│   │   │   └── load_indicators.py
+│   │   ├── madrid/
+│   │   │   ├── load_districts.py
+│   │   │   ├── load_neighbourhoods.py
+│   │   │   ├── load_point_features.py
+│   │   │   └── load_indicators.py
+│   │   ├── upload/
+│   │   │   └── upload_to_supabase.py
+│   │   └── ingest.py          # 🔁 Main orchestrator
+│
+├── shared/
+│   └── emoji_logger.py       # Custom logger for feedback
+│
+├── tests/
+│   └── test_base_data_upload.py  # Pytest validation rules
 ```
 
 ---
 
-## 🚀 Orchestration Logic (`run_all.py`)
-
-This script:
-
-- Runs ETLs for districts and neighbourhoods
-- Uploads results to Supabase
-- Executes pytest validation tests
-- Continues uploading only if all tests pass
-
-### Simplified Execution Flow Example:
+## 🔍 Example ETL Execution
 
 ```python
-bcn_d.run()         # Barcelona districts
-mad_d.run()         # Madrid districts
-upload_to_supabase.run_district_upload()
+# Ingest.py simplified:
 
-bcn_n.run()         # Barcelona neighbourhoods
-mad_n.run()         # Madrid neighbourhoods
-run_tests()         # Pytest validations
+# ETL: Districts
+bcn_d.run()
+mad_d.run()
+upload.run_district_upload()
 
-upload_to_supabase.run_neighbourhood_upload()
+# ETL: Neighbourhoods (uses district map from Supabase)
+bcn_n.run()
+mad_n.run()
+upload.run_neighbourhood_upload()
 
-# Continue with other datasets...
+# ✅ Run tests
+run_tests("test_base_data_upload.py")
+
+# Point features & indicators
+bcn_p.run()
+mad_p.run()
+upload.run_point_feature_upload()
+
+bcn_i.run()
+mad_i.run()
+upload.run_indicator_upload()
 ```
 
 ---
 
 ## ✅ Benefits of This Structure
 
-- **Modular**: Each dataset is handled by an independent ETL script.
-- **Maintainable**: Easy to update or extend without affecting the entire pipeline.
-- **Automatable**: Ready for scheduled or CI/CD-based execution.
-- **Testable**: Includes validation stage before uploading any data.
+- **Modular**: Add cities or datasets without breaking existing logic.
+- **Safe**: Uploads only proceed after passing validation.
+- **Scalable**: Easily extendable with new dataset types.
+- **Consistent**: Reusable naming and folder conventions.
 
 ---
 
 ## 📌 Naming Conventions
 
-- Raw files: `data/raw/[city]_[dataset].csv`
-- Processed files: `data/processed/[city]_[dataset]_clean.csv`
-- ETL script: `data/scripts/[city]/load_[table_name].py`
+- `load_districts.py` → contains `run()` for that dataset
+- `insert_ready_[dataset]_[city].json` → processed file for upload
+- `[city]-[dataset].json` → original file hosted on Supabase
 
 ---
 
-## 🛠 Technologies Used
+## 🧪 Validation
 
-- **Pandas**: For data manipulation
-- **Shapely** (optional): For geometry handling
-- **Supabase Python SDK**: For data upload
-- **Pytest**: For data integrity tests
+Each processed dataset is tested against:
+- Geometry structure match
+- Record counts
+- Join validity (e.g. neighbourhoods with valid district IDs)
 
----
-
-## 👀 Example Datasets
-
-- Museums, schools, public libraries
-- Bus stops, metro stations, markets
-- Population by district, average income
-- Parks and green zones
+Tests are written using `pytest`.
 
 ---
 
-## 🔒 Licensing & Attribution
+## 🧰 Technologies
 
-Always verify dataset licensing. Most datasets used are:
-- **CC BY 4.0** (Barcelona Open Data)
-- **Open Municipal License** (Madrid)
+| Tool          | Purpose                    |
+|---------------|----------------------------|
+| **Pandas**    | Data wrangling             |
+| **GeoPandas** | Geometry + GeoJSON parsing |
+| **Shapely**   | Geometry objects           |
+| **Supabase**  | Cloud DB for open data     |
+| **pytest**    | Dataset validations        |
+| **Click**     | (Optional) CLI automation  |
 
-Attribution must be retained when integrating or displaying data in the application.
+---
+
+## 🗂️ Future Datasets (Ideas)
+
+- 🚉 Transit stops, metro entrances  
+- 🏫 Public schools and health centers  
+- 🏞️ Parks, gardens, green zones  
+- 📊 Income per district, population stats
+
+---
+
+## 🔒 Licensing
+
+> Most datasets are under:
+- **Barcelona** → [CC BY 4.0](https://opendata-ajuntament.barcelona.cat/)
+- **Madrid** → Open Municipal License
+
+Always retain attribution when visualizing or sharing.
+
+---

@@ -16,7 +16,7 @@ Each step is designed to be **reproducible**, **testable**, and **separable**, a
 
 ### 📦 Data Layer (Core focus so far)
 
-- **ETL Language:** Python 3.12
+- **ETL Language:** Python 3.11
 - **Libraries:** `GeoPandas`, `Shapely`, `dotenv`, `psycopg2`, `pytest`
 - **Database:** Supabase (PostgreSQL + PostGIS)
 - **Upload Strategy:** REST API (Supabase Python client)
