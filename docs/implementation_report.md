@@ -1,99 +1,190 @@
-# 📄 Implementation Report – Are-U-Query-ous
+# 📝 Implementation Report – ARE-U-QUERY-OUS
 
-## ✅ Phase 1 – Initial Setup and Configuration
+This file contains a chronologically ordered list of development work based on Git commit messages.
 
-### 🛠️ Setup | 2025-04-14
-- Initialized backend and Supabase integration
-- Created backend entrypoint (`main.py`) and DB connection logic (`db.py`)
-- Configured Dockerfiles and `docker-compose.yml` for environment bootstrapping
-- Added placeholder documentation and Supabase credentials template
+```txt
+## 2025-04-16 | �� Feature | 2024-03-21 | Enhanced data loading pipeline for Barcelona and Madrid
 
-### 🔐 Config | 2025-04-15
-- Created `.env.example` with secure placeholders
-- Removed plaintext `supabase-password.txt` file for security compliance
+- Added new indicator loading scripts (barcelona/load_indicators.py, madrid/load_indicators.py) to standardize data processing
+- Added Madrid point features loading script to match Barcelona's functionality
+- Modified database schema and seed files to accommodate new data structures
+- Added proper Python package structure with __init__.py files in data/scripts directories
+- Updated ETL pipeline documentation to reflect new changes
+- Added new Barcelona raw data file (2022_atles_renda_bruta_llar.csv)
+- Created shared/ directory for common utilities and functions
 
----
+This commit standardizes the data loading process between Barcelona and Madrid, improving code organization and maintainability.
 
-## 📦 Phase 2 – Data Pipeline Development
 
-### 📦 Data Pipeline | 2025-04-15
-- Created working `.env` and `.env.example` files
-- Added real GeoJSON and TopoJSON files for Barcelona and Madrid
-- Developed ETL scripts for:
-  - `load_districts.py` and `load_neighbourhoods.py` (both cities)
-  - Geometry transformation and WKT generation
-- Created `upload_to_supabase.py` to automate upload
-- Set up `ingest_data.py` to orchestrate ETL + upload
+## 2025-04-16 | 🗃️ DB | 2025-04-16 | Added database schema and datasets mapping documentation
 
-### 🗃️ DB | 2025-04-15
-- Designed and implemented PostGIS schema with:
-  - `cities`, `districts`, `neighbourhoods`, `indicators`, `point_features`
-- Created unified spatial view: `geographical_unit_view`
-- Enabled reproducibility by scripting entire schema creation
+- Created comprehensive database schema with PostGIS support for cities, districts, and neighbourhoods
+- Added geographical_unit_view to unify all geographical levels
+- Implemented proper permissions and RLS policies for database security
+- Added support for point features and indicators with proper indexing
 
-### 📦 Feature | 2025-04-15
-- Finalized `insert_ready_*.json` generation
-- Populated test data with `seed.sql`
-- Added support for CI/CD-safe testable pipelines
 
----
+## 2025-04-16 | 📄 Docs | 2025-04-16 | Added datasets mapping documentation for ETL process
 
-## ♻️ Phase 3 – Pipeline Refactor and Robustness
+- Created datasets_mapping.md with comprehensive list of data sources from Barcelona and Madrid
+- Defined structure for point features and indicators datasets
+- Added documentation for ETL script mapping and data source URLs
 
-### ♻️ Refactor | 2025-04-15
-- Refactored `ingest_data.py` to ensure districts load/upload **before** neighbourhoods
-- Split upload stages into `run_district_upload()` and `run_neighbourhood_upload()`
-- Removed hardcoded mappings; introduced dynamic Supabase resolution
-- Ensured valid foreign key references before upload
 
-### 🗃️ DB | 2025-04-15
-- Regenerated all processed JSON exports after refactor
-- Synced `schema.sql` with pipeline assumptions
+## 2025-04-15 | 🗃️ DB | 2025-04-16 | Added PostGIS schema fixes and point features loader
 
----
+- Updated  to fix SECURITY DEFINER view issue and apply correct RLS policies
+- Fixed  to create  without the SECURITY DEFINER flag
+- Added new script  under  to handle ETL of cultural equipment
+- Adjusted  and  to support the new point features pipeline
+- Updated  with initial values for  (libraries, museums, etc.)
 
-## 🧪 Phase 4 – Testing and QA
+Linter errors on Supabase dashboard are resolved and ETL for Barcelona point features is now operational.
 
-### 🧪 Test | 2025-04-15
-- Created `test_geometry_integrity.py` to validate geometry consistency
-- Covered both raw vs. processed checks for all cities (districts + neighbourhoods)
-- Added `pytest.ini` to suppress Shapely deprecation warnings
-- Ensured test discovery with proper Python path handling
 
-### 🛠️ Setup | 2025-04-15
-- Modularized `Makefile` with:
-  - `make setup` → DB bootstrapping
-  - `make etl` → Run ETL
-  - `make test`, `make test_geometry`, `make test_processed`
-  - `make clean` → Remove caches and processed files
-  - `make all` → Full workflow execution
+## 2025-04-15 | 🗃️ DB | 2025-04-15 | Added city_id to geographical_unit_view for clarity
 
----
+- Updated database/views.sql to include `city_id` in all levels of geographical_unit_view
+- Enables disambiguation of neighbourhood and district codes across different cities
+- Facilitates clearer joins and lookups in future ETLs (e.g. point_features, indicators)
 
-## 🗂️ Directory and Structure Finalization
+This change improves data traceability across geo levels and supports multi-city datasets more reliably.
 
-The repo was organized with long-term maintainability in mind:
+
+## 2025-04-15 | 🗃️ DB | 2025-04-15 | Normalize geo code fields and fix geographical view
+
+- Updated all ETL scripts to store  and  as integers
+- Aligned database schema to define  and  as INTEGER types
+- Fixed  to cast all  fields as INTEGER to enable type-safe joins
+- Ensures compatibility for future joins in ETLs for indicators and point_features using (geo_level_id, code)
+
+This change standardizes geo code fields across the DB and ETL to prevent type mismatch errors.
+
+
+## 2025-04-15 | ♻️ Refactor | 2025-04-15 | Cleaned up compiled .pyc files from venv
+
+- Deleted unnecessary cached Python files () under  for a lighter repo
+- Prevented tracking of virtual environment generated files by Git
+- Reflects automated clean-up process often run via 🧼 Cleaning processed files and cache...
+rm -rf data/processed/*
+find . -type d -name "__pycache__" -exec rm -rf {} +
+rm -rf .pytest_cache
+✅ Clean complete. or pre-deploy steps
+
+This commit helps maintain a clean working directory by avoiding committed environment artifacts.
+
+
+## 2025-04-15 | 🛠️ Setup | 2025-04-15 | Finalized Makefile automation and documentation cleanup
+
+- Replaced old  with standardized  for full project automation
+- Added modular targets for , , , ,  and
+- Created  with detailed environment and installation instructions
+- Deleted outdated documents: ,
+- Updated  to separate ETL and upload logic and improve flow control
+- Extended  to include full commit log and project evolution
+
+This commit wraps up the day’s refactor by enabling end-to-end reproducibility and clearer documentation for project onboarding.
+!
+
+
+## 2025-04-15 | 🧪 Test | 2025-04-15 | Added geometry integrity tests and silenced Shapely deprecation warning
+
+- Updated test_geometry_integrity.py to ensure geometry consistency between raw and processed files using GeoPandas and Shapely
+- Added  logic for correct module resolution in pytest
+- Created pytest.ini to configure test discovery and suppress shapely.geos deprecation warnings
+
+Ensures reliable regression checks on ETL geometry outputs and prepares test suite for CI integration.
+
+
+## 2025-04-15 | 🗃️ DB | 2025-04-15 | Updated processed geojson exports and refined schema
+
+- Regenerated insert_ready_*.json files for districts and neighbourhoods (Barcelona & Madrid) with correct district_id mappings
+- Ensured consistency with new dynamic Supabase ID resolution during ETL
+- Minor refinements to database/schema.sql to align with current pipeline structure
+
+These changes finalize the corrected ETL output and schema alignment after refactor.
+
+
+## 2025-04-15 | ♻️ Refactor | 2025-04-15 | Separated ETL and upload stages for districts and neighbourhoods
+
+- Refactored ingest_data.py to ensure districts are loaded and uploaded before neighbourhood ETL begins
+- Updated upload_to_supabase.py to split upload functions into run_district_upload and run_neighbourhood_upload
+- Replaced hardcoded district_id mappings in Madrid and Barcelona neighbourhood scripts with dynamic lookup from Supabase
+- Improved script reliability by removing assumptions on auto-increment IDs and ensuring valid foreign key relationships
+
+This change ensures consistent ETL pipeline execution and eliminates dependency errors during neighbourhood uploads.
+
+
+## 2025-04-15 | 🛠️ Setup | 2025-04-15 | Refactored Makefile with modular test commands
+
+- Added separate targets for test_processed and test_geometry under test suite
+- Clarified comments for each command including etl, clean, upload, and seed
+- Enables isolated test runs and better developer experience during debugging
+
+This update improves maintainability and transparency in running parts of the pipeline independently.
+
+
+## 2025-04-15 | 📦 Feature | 2025-04-15 | Added ETL scripts and processed data for BCN & Madrid
+
+- Created `load_districts.py` and `load_neighbourhoods.py` for both Barcelona and Madrid under `data/scripts/`
+- Generated `insert_ready_*.json` files with cleaned and WKT-wrapped geometries in `data/processed/`
+- Ensured all districts and neighbourhoods are standardized and mapped to city IDs
+- Added seed.sql to initialize PostGIS schema with all required tables and constraints
+- Added `test_geometry_integrity.py` to validate WKT consistency between raw and processed files
+- Includes Makefile commands (`etl`, `test`) for pipeline reproducibility
+
+Enables complete ETL and test pipeline for loading and validating geospatial data per city.
+
+
+## 2025-04-15 | 📄 Docs | 2025-04-15 | Added commit message template for project documentation
+
+
+
+## 2025-04-15 | 🗃️ DB | 2025-04-15 | Added full PostGIS schema and unified views
+
+- Added database/schema.sql with table definitions for cities, districts, neighbourhoods, indicators, and point_features
+- Added database/views.sql including 'geographical_unit_view' to unify all geo levels
+- Enables reproducibility and setup of Supabase schema from scratch
+
+
+## 2025-04-15 | 📦 Data Pipeline | 2025-04-15 | ETL pipeline + Supabase config for geographical data
+
+- Added working .env and .env.example with Supabase URL and service key
+- Removed supabase-password.txt and old placeholder files
+- Created ETL scripts for Barcelona and Madrid (districts + neighbourhoods)
+- Prepared upload script using supabase-py to send data from JSON to Supabase
+- Updated ingest_data.py and requirements.txt to support ETL workflow
+- Added real data sources: GeoJSON/TopoJSON files for BCN and MAD
+
+This commit sets up a complete ETL-to-database pipeline for geospatial data ingestion.
+
+
+## 2025-04-15 | 🔐 Config | 2025-04-15 | Added Supabase credentials to .env.example and removed exposed password
+
+- Updated .env.example with SUPABASE_URL and SUPABASE_SERVICE_KEY placeholders
+- Ensured local .env includes real credentials (not committed)
+- Deleted supabase-password.txt to prevent accidental exposure
+
+
+## 2025-04-15 | 🔐 Config | 2025-04-15 | Added safe .env.example and removed password file
+
+- Added .env.example with Supabase placeholders
+- Updated .gitignore to exclude .env from versioning
+- Removed supabase-password.txt to avoid exposed credentials
+
+
+## 2025-04-15 | 🛠️ Setup | 2025-04-14 | Initial backend + Supabase integration setup
+
+- Deleted placeholder .env.example (replaced with working .env file locally)
+- Modified backend entrypoint and database logic (main.py, db.py)
+- Updated backend/frontend Dockerfiles to align with Supabase config
+- Adjusted docker-compose to reflect real env variables
+- Created documentation stub for methods (docs/methods_resources.md)
+- Added supabase-password.txt (⚠️ this should be ignored or encrypted later)
+- Prepared requirements.txt for deployment
+
+
+## 2025-04-14 | Initial project structure from CA3 template
+
+
 ```
-are-u-query-ous/
-├── backend/        # FastAPI microservice (to be implemented)
-├── frontend/       # React + Leaflet frontend (to be implemented)
-├── data/           # ETL scripts, raw/processed data, tests
-├── database/       # SQL schema, views, and seed
-├── docs/           # Markdown documentation
-├── .env.example    # Env variables
-├── Makefile        # Workflow automation
-└── README.md
-```
-
----
-
-## 🔜 Upcoming Work
-- [ ] Develop backend API endpoints (CA3)
-- [ ] Build React/Leaflet dashboard for spatial data exploration
-- [ ] Integrate indicator-level data and visual analytics
-
----
-
-This report will continue to evolve as the project progresses. Next update will include backend routes and frontend UI logic.
-
-_Updated: April 15, 2025_

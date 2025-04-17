@@ -1,18 +1,22 @@
 # data/scripts/barcelona/load_districts.py
 
 import json
+import requests
 from shapely import wkt
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[3]  # up to the root of the project
 
 def run():
-    input_path = BASE_DIR / "data/raw/bcn-districts.json"
+    input_url= "https://xwzmngtodqmipubwnceh.supabase.co/storage/v1/object/public/data/barcelona/bcn-districts.json"
     output_path = BASE_DIR / "data/processed/insert_ready_districts_bcn.json"
     city_id = 1  # Barcelona
 
-    with input_path.open(encoding="utf-8") as f:
-        raw_data = json.load(f)
+    # 📥 Download JSON file from URL
+    response = requests.get(input_url)
+    response.raise_for_status()
+    raw_data = response.json()
+
 
     prepared_data = []
 

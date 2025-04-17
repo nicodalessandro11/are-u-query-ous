@@ -57,9 +57,12 @@ CREATE TABLE indicator_definitions (
     name TEXT NOT NULL UNIQUE,
     unit TEXT,
     description TEXT,
+    category TEXT,
+    source JSONB DEFAULT '{}'::JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- === Table: indicators ===
 CREATE TABLE indicators (

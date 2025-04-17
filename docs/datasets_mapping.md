@@ -20,7 +20,7 @@ This document summarizes the selected datasets from the open data portals of **B
 | Oficinas Línea Madrid (Atención Ciudadana) | Madrid | Services | Point | [link](https://datos.gob.es/es/catalogo/l01280796-oficinas-de-linea-madrid) | `...` | `...` |
 | Población por barrio/distrito – BCN | Barcelona | Demography | Indicator | [link](https://opendata-ajuntament.barcelona.cat/data/es/dataset/pad_mdbas) | `...` | `...` |
 | Población por barrio/distrito – Madrid | Madrid | Demography | Indicator | [link](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=0cccaebc07c1f710VgnVCM2000001f4a900aRCRD) | `...` | `...` |
-| Renta bruta media por hogar – BCN | Barcelona | Demography | Indicator | [link](https://opendata-ajuntament.barcelona.cat/data/es/dataset/atles-renda-bruta-per-llar) | `...` | `...` |
+| Renta bruta media por hogar – BCN | Barcelona | Demography | Indicator | [link](https://opendata-ajuntament.barcelona.cat/data/es/dataset/atles-renda-bruta-per-llar) | `data/raw/2022_atles_renda_bruta_llar.csv` ✅ | `data/scripts/barcelona/load_indicators.py` ✅ |
 | Parques y jardines de Barcelona | Barcelona | Urbanism | Point | [link](https://opendata-ajuntament.barcelona.cat/data/es/dataset/culturailleure-parcsjardins) | `...` | `...` |
 | Parques y jardines destacados – Madrid | Madrid | Urbanism | Point | [link](https://datos.madrid.es/egob/catalogo/200761-0-parques-jardines.csv) | `...` | `...` |
 | Superficie zonas verdes por distrito – Madrid | Madrid | Urbanism | Indicator | [link](https://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=559b401daf436610VgnVCM1000001d4a900aRCRD) | `...` | `...` |

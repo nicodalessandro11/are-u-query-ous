@@ -19,10 +19,13 @@ install:
 	pip install --upgrade pip
 	@echo "📦 Installing Python dependencies from requirements.txt..."
 	pip install -r requirements.txt
-	@echo "✅ Dependencies installed."
+	@echo "🔁 Installing shared module in editable mode..."
+	pip install -e .
+	@echo "✅ Dependencies and shared package installed."
+
 
 ## 🧹 Drop all existing tables (DEV ONLY — use with caution!)
-reset:
+reset-db:
 	@echo "🧨 Performing full database reset..."
 	psql "$$DATABASE_URL" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 	@echo "✅ Full database reset complete."
@@ -71,6 +74,23 @@ test-only: etl test
 all: install setup ingest clean
 	@echo "🏁 All steps completed. Supabase is now fully populated!"
 
+## 📝 Generate markdown report from Git commit history
+commits-report:
+	@echo "# 📝 Implementation Report – ARE-U-QUERY-OUS" > docs/implementation_report.md
+	@echo "" >> docs/implementation_report.md
+	@echo "This file contains a chronologically ordered list of development work based on Git commit messages." >> docs/implementation_report.md
+	@echo "" >> docs/implementation_report.md
+	@echo '```bash' >> docs/implementation_report.md
+	@git log --pretty=format:"## %ad | %s%n%n%b%n" --date=short >> docs/implementation_report.md
+	@echo '```' >> docs/implementation_report.md
+	@echo "✅ Report generated at docs/implementation_report.md"
+
+## 🧾 Generate CHANGELOG.md from implementation_report.md using OpenAI API
+changelog:
+	@echo "📤 Generating CHANGELOG.md using OpenAI API..."
+	python scripts/generate_changelog.py
+
+
 ## 📚 Show all available commands
 help:
 	@echo ""
@@ -86,4 +106,5 @@ help:
 	@echo "  make dev        - Run ETL + test (skip upload)"
 	@echo "  make clean      - Delete processed files and caches"
 	@echo "  make reset-db   - Drop all existing tables"
+	@echo "  make generate-report - Generate markdown report from Git commits"
 	@echo ""
