@@ -6,8 +6,8 @@ include .env
 export
 
 SUPABASE_SQL_DIR=database
-ETL_SCRIPT=data/scripts/ingest_data.py
-TEST_DIR=data/tests
+INGEST_SCRIPT=scripts/etl/ingest.py
+TEST_DIR=tests
 PROCESSED_DIR=data/processed
 
 # Default command: full pipeline
@@ -41,7 +41,7 @@ setup:
 ## ⚙️ Run ETL scripts (generate processed JSON files only)
 etl:
 	@echo "⚙️ Running ETL scripts..."
-	python $(ETL_SCRIPT) --skip-upload
+	python $(INGEST_SCRIPT) --skip-upload
 
 ## 🧪 Run geometry validation tests
 test:
@@ -51,12 +51,12 @@ test:
 ## 🚀 Run full ingestion (ETL + tests + upload)
 ingest:
 	@echo "🚀 Running full ingestion (ETL + tests + upload)..."
-	python $(ETL_SCRIPT)
+	python -m scripts.etl.ingest
 
 ## 👨‍💻 Developer mode: ETL + tests (no upload)
 dev:
 	@echo "👨‍💻 Developer mode: ETL + tests (no upload)..."
-	python $(ETL_SCRIPT) --skip-upload
+	python $(INGEST_SCRIPT) --skip-upload
 	make test
 
 ## 🧼 Clean processed files and Python cache
@@ -88,7 +88,7 @@ commits-report:
 ## 🧾 Generate CHANGELOG.md from implementation_report.md using OpenAI API
 changelog:
 	@echo "📤 Generating CHANGELOG.md using OpenAI API..."
-	python scripts/generate_changelog.py
+	python scripts/automations/generate_changelog.py
 
 
 ## 📚 Show all available commands

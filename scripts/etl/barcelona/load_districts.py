@@ -38,7 +38,7 @@ DEFAULT_OUTPUT_PATH = BASE_DIR / "data/processed" / OUTPUT_FILENAME
 
 
 # ===================
-# 🚀 Core ETL Process
+# Core ETL Process
 # ===================
 
 def run(
@@ -100,7 +100,7 @@ def run(
         json.dump(prepared_data, f, ensure_ascii=False, indent=2)
 
     # ===============
-    # ✅ Summary Log
+    # Summary Log
     # ===============
     info(f"Total districts in input: {len(raw_data)}")
     success(f"Processed and saved: {len(prepared_data)} districts")
@@ -110,7 +110,7 @@ def run(
 
 
 # ==========================
-# 🧪 CLI Entry Point
+# CLI Entry Point
 # ==========================
 
 if __name__ == "__main__":

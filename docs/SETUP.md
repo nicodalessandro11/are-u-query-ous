@@ -1,20 +1,27 @@
 # 🛠️ Project: Are-U-Query-ous – Setup Guide
 
-This document walks you through the full setup process to run the project from scratch.
+This document walks you through the full setup process to run the project from scratch — including environment setup, data ingestion, testing, and deployment to Supabase.
 
 ---
 
 ## ✅ System Requirements
 
-Make sure you have the following installed:
+Ensure you have the following tools installed:
 
-### 🐍 Python 3.10 or higher
+---
 
-> It's recommended to use a virtual environment
+### 🐍 Python 3.10 or Higher
+
+Use a virtual environment to isolate dependencies.
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # or .\venv\Scripts\activate on Windows
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+```
+
+Then install the dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
@@ -22,7 +29,7 @@ pip install -r requirements.txt
 
 ### 🐘 PostgreSQL Client (`psql`)
 
-> Required to run SQL scripts (`schema.sql`, `views.sql`, `seed.sql`) against Supabase.
+Used to execute SQL files against your Supabase database.
 
 #### ▪ Ubuntu / Debian
 
@@ -39,30 +46,30 @@ brew install postgresql
 
 #### ▪ Windows
 
-- Install PostgreSQL from: https://www.postgresql.org/download/windows/
-- Ensure `psql` is added to your `PATH`
-- Alternatively, use WSL with a Linux distribution
+- [Download PostgreSQL](https://www.postgresql.org/download/windows/)
+- Make sure `psql` is added to your PATH
+- Or use WSL (recommended)
 
 ---
 
-### ⚙️ `make`
+### ⚙️ GNU Make
 
-Used to automate the full setup process:
+Used to automate your workflow.
 
-- **Linux/macOS**: pre-installed by default
-- **Windows**: install [Git Bash](https://gitforwindows.org/) or use WSL
+- **macOS/Linux**: Already available
+- **Windows**: Use [Git Bash](https://gitforwindows.org/) or install via WSL
 
 ---
 
 ## 🔐 Environment Variables
 
-Create a `.env` file in the root of the project (or copy from the provided template):
+Create a `.env` file in the root:
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your Supabase credentials:
+Fill in your **Supabase project credentials**:
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
@@ -72,29 +79,60 @@ DATABASE_URL=postgresql://user:password@host:port/database
 
 ---
 
-## 🚀 Run the Full Setup
+## 🚀 Run the Full Pipeline
 
 ```bash
 make all
 ```
 
-This will automatically:
+This command:
 
-1. Run SQL scripts (`schema.sql`, `views.sql`, `seed.sql`)
-2. Process geospatial data using ETL scripts (districts + neighbourhoods)
-3. Validate geometry integrity with automated tests (`pytest`)
-4. Upload data to Supabase via the service role key
-5. Clean up temp files, `__pycache__`, and processed JSON
+1. Installs Python dependencies
+2. Applies the Supabase schema (`schema.sql`, `views.sql`, `seed.sql`)
+3. Runs all ETL jobs (districts, neighbourhoods)
+4. Executes geometry validation tests
+5. Uploads data to Supabase
+6. Cleans up processed files and caches
 
 ---
 
-## 🧪 Run Tests Only (Optional)
+## 🧪 Run Tests Only
+
+To validate geometry and processed files without uploading:
 
 ```bash
 make test
 ```
 
-Validates the geometry and output files of all processed datasets.
+You can also run:
+
+```bash
+make test-only
+```
+
+Which runs both ETL and tests — without upload.
+
+---
+
+## 👨‍💻 Developer Mode
+
+Run only the ETL scripts and tests (no upload):
+
+```bash
+make dev
+```
+
+Useful for local iterations and validations.
+
+---
+
+## ⚙️ Run ETL Scripts Without Upload
+
+To just generate the processed files:
+
+```bash
+make etl
+```
 
 ---
 
@@ -104,46 +142,89 @@ Validates the geometry and output files of all processed datasets.
 make clean
 ```
 
-Removes:
+This deletes:
 
 - `data/processed/*`
-- Python cache files
-- `.pytest_cache`
+- Python cache files (`__pycache__`, `.pytest_cache`)
 
 ---
 
-## 🔁 Reset the Database (Danger Zone 🚨)
+## 🧨 Reset the Database (Danger Zone 🚨)
 
-If you need to **drop all existing tables and start fresh**:
+To drop all tables and reset the public schema:
 
 ```bash
 make reset-db
 ```
 
-> ⚠️ Requires `database/drop_all.sql` to exist. Use with caution in real environments.
+> ⚠️ Use **only in development**. It executes `DROP SCHEMA public CASCADE`.
 
 ---
 
-## 🔧 Customize Upload Behavior
+## 📤 Manual Upload (Optional)
 
-You can run just the ETL or upload process manually from Python:
+You can manually trigger uploads via CLI:
 
 ```bash
-# Run only ETL
-python data/scripts/ingest_data.py
+# Upload all processed files to Supabase
+python scripts/upload/upload_to_supabase.py
 
-# Manually upload to Supabase
-python data/scripts/upload/upload_to_supabase.py
+# Upload only districts
+python scripts/upload/upload_to_supabase.py --only districts
+```
+
+Supported values for `--only`: `districts`, `neighbourhoods`, `points`, `indicators`, `all`
+
+---
+
+## 🧾 Commit History Report
+
+To generate a Markdown log of all Git commits:
+
+```bash
+make commits-report
+```
+
+This creates `docs/implementation_report.md`.
+
+---
+
+## 📦 Generate CHANGELOG from Commits (AI-Assisted)
+
+If you have OpenAI configured, generate a `CHANGELOG.md` from the implementation report:
+
+```bash
+make changelog
 ```
 
 ---
 
-## 🧠 Notes
+## 📚 Quick Command Reference
 
-- All uploads use the `service_role` key — ensure your Supabase permissions are granted in `schema.sql`.
-- If **tests fail**, the upload is aborted to keep your data clean and consistent.
-- Uses `Shapely`, `GeoPandas`, and `Supabase-py` for geometry + upload logic.
+| Command          | Description                                      |
+|------------------|--------------------------------------------------|
+| `make`           | Full setup: install, schema, ETL, test, upload   |
+| `make install`   | Install Python packages and shared lib           |
+| `make setup`     | Apply database schema and views                  |
+| `make etl`       | Run ETL scripts (no upload)                      |
+| `make test`      | Run only the test suite                          |
+| `make test-only` | Run ETL + tests (no upload)                      |
+| `make dev`       | Dev mode (ETL + tests, skip upload)              |
+| `make ingest`    | Run ETL + test + upload                          |
+| `make clean`     | Remove processed files and cache                 |
+| `make reset-db`  | Drop all tables (dev only)                       |
+| `make commits-report` | Generate Git log as Markdown                |
+| `make changelog` | Generate CHANGELOG from commit history           |
 
 ---
 
-🎉 That’s it! You're ready to explore the data, visualize insights, or extend the project.
+## 🧠 Final Notes
+
+- Uploads are authenticated with the `service_role` key
+- Geometry integrity is **automatically validated** via `pytest`
+- All ETLs are modular, and can be run per city and feature type
+- Logs are enhanced using emoji-logger for readability
+
+---
+
+🎉 That’s it! You’re all set to run, validate, and extend the **Are-U-Query-ous** project. Happy querying!

@@ -1,3 +1,3 @@
-# data/scripts/madrid/load_point_features.py
+# scripts/etl/madrid/load_point_features.py
 
-# TODO: Implement point features loading logic
+# TODO: Implement this script for Madrid point features

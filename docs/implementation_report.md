@@ -2,7 +2,19 @@
 
 This file contains a chronologically ordered list of development work based on Git commit messages.
 
-```txt
+```bash
+## 2025-04-17 | 📦 Feature | 2024-03-21 | Enhanced data ingestion and project structure
+
+- Added new data loading scripts for Madrid indicators and Barcelona districts
+- Updated database schema and seed files for improved data organization
+- Modified ETL pipeline with new ingest_data.py and run_etl.py scripts
+- Added project setup files (setup.py, requirements.txt) and test infrastructure
+- Updated documentation with dataset mappings and implementation details
+- Enhanced Makefile and environment configuration
+
+This commit establishes a more robust data ingestion pipeline and project structure, enabling better data management across multiple cities and indicators.
+
+
 ## 2025-04-16 | �� Feature | 2024-03-21 | Enhanced data loading pipeline for Barcelona and Madrid
 
 - Added new indicator loading scripts (barcelona/load_indicators.py, madrid/load_indicators.py) to standardize data processing
