@@ -1,6 +1,0 @@
-Orden;Periodo panel;ciudad;cod_distrito;distrito;cod_barrio;barrio;año;fecha_indicador;fuente_indicador;categoría_1;categoría_2;indicador_nivel1;indicador_nivel2;indicador_nivel3;unidad_indicador;indicador_completo;valor_indicador
-492;2020;Ciudad de Madrid;1;Centro;11;Palacio;2019;43466;Estadística Ayuntamiento de Madrid;Población del distrito;Estructura de población;Número de Habitantes;;;Habitantes;Número Habitantes;22923
-588;2020;Ciudad de Madrid;1;Centro;12;Embajadores;2019;43466;Estadística Ayuntamiento de Madrid;Población del distrito;Estructura de población;Número de Habitantes;;;Habitantes;Número Habitantes;45259
-683;2020;Ciudad de Madrid;1;Centro;13;Cortes;2019;43466;Estadística Ayuntamiento de Madrid;Población del distrito;Estructura de población;Número de Habitantes;;;Habitantes;Número Habitantes;10484
-770;2020;Ciudad de Madrid;1;Centro;14;Justicia;2019;43466;Estadística Ayuntamiento de Madrid;Población del distrito;Estructura de población;Número de Habitantes;;;Habitantes;Número Habitantes;17153
-866;2020;Ciudad de Madrid;1;Centro;15;Universidad;2019;43466;Estadística Ayuntamiento de Madrid;Población del distrito;Estructura de población;Número de Habitantes;;;Habitantes;Número Habitantes;31725

@@ -1,3 +1,5 @@
+# tests/test_indicators.py
+
 """
 Test script for validating indicator data
 

@@ -3,6 +3,30 @@
 This file contains a chronologically ordered list of development work based on Git commit messages.
 
 ```bash
+## 2025-04-17 | 📦 Feature | 2025-04-17 | Implemented indicators ETL for Barcelona and Madrid
+
+- Added load_indicators.py for Barcelona with support for income, population, and surface metrics
+- Added load_indicators.py for Madrid with support for population and surface metrics
+- Updated ingest.py to enable indicator ETL execution and testing
+- Enhanced documentation with clearer ETL flow and naming conventions
+- Added proper error handling and logging for indicator processing
+
+This implementation completes the core ETL pipeline for both cities, enabling standardized processing of socioeconomic indicators across different geographical levels.
+
+
+## 2025-04-17 | 🔄 Refactor | 2024-03-21 | Restructured project organization and data handling
+
+- Moved data scripts from data/scripts to scripts/etl for better organization
+- Created new upload module in scripts/etl/upload for data upload functionality
+- Added files_manifest.json for tracking data file metadata
+- Updated documentation (SETUP.md, implementation_report.md) to reflect new structure
+- Added scripts-best-practices.md for standardized development guidelines
+- Cleaned up deprecated files and moved them to zz_deprecated directory
+- Updated requirements.txt and Makefile to match new project structure
+
+This restructuring improves code maintainability and sets up a more scalable foundation for future development, with clear separation of concerns between data processing, upload, and documentation.
+
+
 ## 2025-04-17 | 📦 Feature | 2024-03-21 | Enhanced data ingestion and project structure
 
 - Added new data loading scripts for Madrid indicators and Barcelona districts
