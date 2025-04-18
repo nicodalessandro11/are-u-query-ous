@@ -18,11 +18,11 @@ import sys
 import argparse
 from scripts.etl.barcelona import load_districts as bcn_d
 from scripts.etl.barcelona import load_neighbourhoods as bcn_n
-# from scripts.etl.barcelona import load_point_features as bcn_p
+from scripts.etl.barcelona import load_point_features as bcn_p
 from scripts.etl.barcelona import load_indicators as bcn_i
 from scripts.etl.madrid import load_districts as mad_d
 from scripts.etl.madrid import load_neighbourhoods as mad_n
-# from scripts.etl.madrid import load_point_features as mad_p
+from scripts.etl.madrid import load_point_features as mad_p
 from scripts.etl.madrid import load_indicators as mad_i
 from scripts.etl.upload import upload_to_supabase as upload
 
@@ -73,14 +73,14 @@ def process_point_features():
     print("📍 Running POINT FEATURE ETLs...")
 
     # ETL: Point Features
-    # bcn_p.run()
-    # mad_p.run()
+    bcn_p.run()
+    mad_p.run()
 
     # Test: Geometry + Files
-    # run_tests("test_point_features_upload.py")
+    run_tests("test_point_features_upload.py")
 
     # Upload: Supabase
-    # upload.run_point_feature_upload()
+    upload.run_point_feature_upload()
 
 # =====================
 # Indicator Pipeline
@@ -94,7 +94,7 @@ def process_indicators():
     mad_i.run()
 
     # Test: Values and structure
-    run_tests("test_indicators.py")
+    run_tests("test_indicators_upload.py")
 
     # Upload: Supabase
     upload.run_indicator_upload()
@@ -121,12 +121,12 @@ if __name__ == "__main__":
         bcn_n.run()
         mad_n.run()
         run_tests("test_base_data_upload.py")
-        # bcn_p.run()
-        # mad_p.run()
-        # run_tests("test_point_features_upload.py")
+        bcn_p.run()
+        mad_p.run()
+        run_tests("test_point_features_upload.py")
         bcn_i.run()
         mad_i.run()
-        run_tests("test_indicators.py")
+        run_tests("test_indicators_upload.py")
         print("✅ Developer ETL and test run complete.")
     else:
         run_all()
