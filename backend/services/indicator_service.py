@@ -1,1 +1,0 @@
-# Placeholder content for backend/services/indicator_service.py

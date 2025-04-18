@@ -1,1 +1,0 @@
-# Placeholder content for backend/utils/geo_utils.py
