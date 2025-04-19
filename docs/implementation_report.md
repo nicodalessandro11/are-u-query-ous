@@ -3,12 +3,36 @@
 This file contains a chronologically ordered list of development work based on Git commit messages.
 
 ```bash
+## 2025-04-18 | 🛠️ Setup | 2024-04-18 | Restructured backend with FastAPI template and organized project structure
+
+- Created backend/app directory with initial FastAPI application setup including CORS middleware
+- Moved legacy code to zz_deprecated/ directory for reference while building new structure
+- Added migrations directory for database schema management with Alembic
+- Set up initial test structure with test_auth.py and test_indicators.py
+- Added documentation for API pipeline and ETL structure
+
+This commit establishes the foundation for the new backend architecture, providing a clean slate for building the API while preserving legacy code for reference.
+
+
+## 2025-04-18 | 🛠️ Setup | 2024-04-18 | Restructured backend with FastAPI template and organized project structure
+
+- Created backend/app directory with initial FastAPI application setup including CORS middleware
+- Moved legacy code to zz_deprecated/ directory for reference while building new structure
+- Added migrations directory for database schema management with Alembic
+- Set up initial test structure with test_auth.py and test_indicators.py
+- Added documentation for API pipeline and ETL structure
+
+This commit establishes the foundation for the new backend architecture, providing a clean slate for building the API while preserving legacy code for reference.
+
+
 ## 2025-04-18 | 🧪 Test | 2025-04-18 | Refactored test structure and data organization
 
 - Renamed test files to better reflect their purpose (test_indicators.py → test_indicators_upload.py, test_point_features.py → test_point_features_upload.py)
 
 - Removed processed JSON files from version control to follow best practices
+
 - Removed raw sample JSON files that should not be tracked
+
 - Modified ETL ingestion script to improve data handling
 
 This commit improves the project structure by separating test files by functionality and removing generated data files from version control.
@@ -17,23 +41,29 @@ This commit improves the project structure by separating test files by functiona
 ## 2025-04-18 | 🔐 Config | 2024-03-21 | Remove system files from git tracking
 
 - Removed .DS_Store files from git tracking
+
 - Removed .env file from git tracking
 
-These files are now properly ignored via .gitignore
+- These files are now properly ignored via .gitignore
 
 
 ## 2025-04-18 | 🔐 Config | 2024-03-21 | Update gitignore to exclude system files
 
 - Added .DS_Store and **/.DS_Store patterns to ignore macOS system files
+
 - Ensures system files are not tracked in version control
 
 
 ## 2025-04-18 | 🗃️ DB | 2024-03-21 | Processed and prepared city data for database insertion
 
 - Generated JSON files for districts, neighbourhoods, indicators, and point features for both Barcelona and Madrid
+
 - Updated ETL scripts for point features loading in both cities
+
 - Reorganized data structure by moving sample data to raw_sample directory
+
 - Updated tests to reflect new data processing changes
+
 - Modified implementation report to document changes
 
 This commit prepares the data in a format ready for database insertion, improving the ETL pipeline for both cities.
@@ -74,7 +104,8 @@ This restructuring improves code maintainability and sets up a more scalable fou
 
 This commit establishes a more robust data ingestion pipeline and project structure, enabling better data management across multiple cities and indicators.
 
-## 2025-04-16 | 📦 Feature | 2024-03-21 | Enhanced data loading pipeline for Barcelona and Madrid
+
+## 2025-04-16 | �� Feature | 2024-03-21 | Enhanced data loading pipeline for Barcelona and Madrid
 
 - Added new indicator loading scripts (barcelona/load_indicators.py, madrid/load_indicators.py) to standardize data processing
 - Added Madrid point features loading script to match Barcelona's functionality
